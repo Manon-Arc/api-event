@@ -19,7 +19,7 @@ public class UsersService
             eventprojDatabaseSettings.Value.DatabaseName);
 
         _usersCollection = mongoDatabase.GetCollection<User>(
-            eventprojDatabaseSettings.Value.BooksCollectionName);
+            eventprojDatabaseSettings.Value.UsersCollectionName);
     }
 
     public async Task<List<User>> GetAsync() =>
