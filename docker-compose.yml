@@ -1,23 +1,6 @@
 ﻿services:
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - "127.0.0.1:27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: Admin
-      MONGO_INITDB_ROOT_PASSWORD: Admin
-    volumes:
-      - ./database:/data/db
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - "127.0.0.1:8000:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: Admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: Admin
-      ME_CONFIG_BASICAUTH_USERNAME: Admin
-      ME_CONFIG_BASICAUTH_PASSWORD: Admin
-      ME_CONFIG_MONGODB_URL: mongodb://Admin:Admin@mongo:27017/
+  api-event:
+    image: api-event
+    build:
+      context: .
+      dockerfile: api-event/Dockerfile
