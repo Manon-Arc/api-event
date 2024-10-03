@@ -1,0 +1,6 @@
+﻿services:
+  api-event:
+    image: api-event
+    build:
+      context: .
+      dockerfile: api-event/Dockerfile
