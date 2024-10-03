@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
 
-[Route("/user")]
+[Route("/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
     private readonly UsersService _usersService;
-    static String routeName = "users";
 
     public UserController ( UsersService usersService)
     {
@@ -19,12 +18,22 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _usersService.GetAsync();
+        List<User> data = await _usersService.GetAsync();
+        return Ok(data);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUser(String id)
     {
-        return (await _usersService.GetAsync(id))!;
+        User? data = await _usersService.GetAsync(id);
+        return Ok(data);
     }
+
+    [HttpPost]
+    public async void PostUser(User user)
+    {
+        await _usersService.CreateAsync(user);
+    }
+    
+    
 }
