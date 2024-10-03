@@ -1,17 +1,17 @@
 using api_event.Models;
-using BookStoreApi.Services;
+using api_event.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
 
-[Route("/[UserController.routeName]")]
+[Route("/user")]
 [ApiController]
 public class UserController : ControllerBase
 {
     private readonly UsersService _usersService;
     static String routeName = "users";
 
-    public UserController( UsersService usersService)
+    public UserController ( UsersService usersService)
     {
         _usersService = usersService;
     }

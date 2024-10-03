@@ -2,52 +2,41 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api_event;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using api_event.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.Configure<EventprojDBSettings>(
-    builder.Configuration.GetSection("BookStoreDatabase"));
-public class Startup
-{
-    
-    private readonly IConfiguration _configuration;
+    builder.Configuration.GetSection("EventprojDB"));
 
-    public Startup(IConfiguration configuration)
+// Enregistrer UsersService dans le conteneur de services
+builder.Services.AddScoped<UsersService>();
+
+// Configure JWT authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        _configuration = configuration;
-    }
-    
-    
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _configuration["Jwt:Issuer"],
-                    ValidAudience = _configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]))
-                };
-            });
-
-        services.AddControllers();
-    }
-
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-    {
-        app.UseAuthentication(); // Enable JWT authentication
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            endpoints.MapControllers();
-        });
-    }
-}
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+// Enable authentication and authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

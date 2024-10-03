@@ -3,7 +3,7 @@ using api_event.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace BookStoreApi.Services;
+namespace api_event.Services;
 
 public class UsersService
 {
