@@ -9,10 +9,12 @@ namespace api_event.Controllers;
 public class EventGroupsController : ControllerBase
 {
     private readonly EventGroupsService _eventGroupsService;
+    private readonly EventsService _eventsService;
 
-    public EventGroupsController(EventGroupsService eventGroupsService)
+    public EventGroupsController(EventGroupsService eventGroupsService, EventsService eventsService)
     {
         _eventGroupsService = eventGroupsService;
+        _eventsService = eventsService;
     }
 
     [HttpGet]
@@ -45,5 +47,12 @@ public class EventGroupsController : ControllerBase
     public async void UpdateEventGroup(string id, [FromQuery] EventGroupsModel eventGroup)
     {
         await _eventGroupsService.UpdateAsync(id, eventGroup);
+    }
+
+    [HttpGet("{id}/events")]
+    public async Task<ActionResult<IEnumerable<Event>>> GetEvents(string id)
+    {
+        var data = await _eventsService.GetAsync(id);
+        return Ok(data);
     }
 }
