@@ -38,7 +38,9 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://yourwebsite.com")
         }
     });
+
 });
+
 
 // Configurer l'authentification JWT
 builder.Services.AddAuthentication(options =>

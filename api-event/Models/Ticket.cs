@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace api_event.Models;
 
@@ -8,6 +9,8 @@ public class Ticket
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
+
+    //[JsonIgnore]
     public string? Id { get; set; }
 
     public string? OfficeID { get; set; }
