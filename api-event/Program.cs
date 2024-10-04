@@ -11,7 +11,8 @@ builder.Services.Configure<EventprojDBSettings>(
     builder.Configuration.GetSection("EventprojDB"));
 
 // Enregistrer UsersService dans le conteneur de services
-builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<UsersService>(); 
+builder.Services.AddScoped<EventsService>();
 
 // Configure JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
