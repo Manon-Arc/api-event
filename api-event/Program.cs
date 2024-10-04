@@ -20,6 +20,7 @@ builder.Services.AddScoped<CredentialsService>();
 builder.Services.AddScoped<TicketsService>();
 builder.Services.AddScoped<EventsService>();
 builder.Services.AddScoped<EventGroupsService>();
+builder.Services.AddScoped<LinkEventToGroupService>();
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
