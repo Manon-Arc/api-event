@@ -38,5 +38,11 @@ public class EventController(EventsService eventsService) : ControllerBase
     {
         await eventsService.RemoveAsync(id);
     }
+
+    [HttpPut("{id}")]
+    public async void PutEvent(string id, [FromQuery] Event eventData)
+    {
+        await eventsService.UpdateAsync(id, eventData);
+    }
         
 }
