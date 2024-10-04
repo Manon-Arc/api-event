@@ -13,4 +13,6 @@ public class EventprojDBSettings
     public string CredentialsCollectionName { get; set; } = null!;
     
     public string EventsCollectionName { get; set; } = null!;
+    
+    public string EventGroupsCollectionName { get; set; } = null!;
 }

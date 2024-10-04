@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api_event;
 using api_event.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +19,7 @@ builder.Services.AddScoped<UsersService>();
 builder.Services.AddScoped<CredentialsService>();
 builder.Services.AddScoped<TicketsService>();
 builder.Services.AddScoped<EventsService>();
+builder.Services.AddScoped<EventGroupsService>();
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
@@ -34,7 +35,7 @@ builder.Services.AddSwaggerGen(c =>
         {
             Name = "Your Name",
             Email = "your-email@example.com",
-            Url = new Uri("https://yourwebsite.com"),
+            Url = new Uri("https://yourwebsite.com")
         }
     });
 });
