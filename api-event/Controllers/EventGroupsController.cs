@@ -6,53 +6,53 @@ namespace api_event.Controllers;
 
 [Route("/[controller]")]
 [ApiController]
-public class EventGroupsController : ControllerBase
+public class EventGroupsController(
+    EventGroupsService eventGroupsService,
+    LinkEventToGroupService linkEventToGroupService)
+    : ControllerBase
 {
-    private readonly EventGroupsService _eventGroupsService;
-    private readonly EventsService _eventsService;
-
-    public EventGroupsController(EventGroupsService eventGroupsService, EventsService eventsService)
-    {
-        _eventGroupsService = eventGroupsService;
-        _eventsService = eventsService;
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventGroupsModel>>> GetEventGroups()
     {
-        var data = await _eventGroupsService.GetAsync();
+        var data = await eventGroupsService.GetAsync();
         return Ok(data);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<EventGroupsModel>> GetEventGroup(string id)
     {
-        var data = await _eventGroupsService.GetAsync(id);
+        var data = await eventGroupsService.GetAsync(id);
+        return Ok(data);
+    }
+
+    [HttpGet("{id}/events")]
+    public async Task<ActionResult<IEnumerable<Event>>> GetEvents(string id)
+    {
+        var data = await linkEventToGroupService.GetEventGroupsByGroup(id);
         return Ok(data);
     }
 
     [HttpPost]
     public async void PostEventGroup([FromQuery] EventGroupsModel eventGroup)
     {
-        await _eventGroupsService.CreateAsync(eventGroup);
+        await eventGroupsService.CreateAsync(eventGroup);
+    }
+
+    [HttpPost("{id}/events/{eventId}")]
+    public async void PostLinkEventGroup(string id, string eventId)
+    {
+        await linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
     }
 
     [HttpDelete]
     public async void DeleteEventGroup(string id)
     {
-        await _eventGroupsService.RemoveAsync(id);
+        await eventGroupsService.RemoveAsync(id);
     }
 
     [HttpPut("{id}")]
     public async void UpdateEventGroup(string id, [FromQuery] EventGroupsModel eventGroup)
     {
-        await _eventGroupsService.UpdateAsync(id, eventGroup);
-    }
-
-    [HttpGet("{id}/events")]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents(string id)
-    {
-        var data = await _eventsService.GetAsync(id);
-        return Ok(data);
+        await eventGroupsService.UpdateAsync(id, eventGroup);
     }
 }
