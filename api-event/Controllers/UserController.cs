@@ -35,6 +35,10 @@ public class UserController : ControllerBase
     {
         await _usersService.CreateAsync(user);
     }
-    
-    
+
+    [HttpPut("{id}")]
+    public async void PutUser(string id, [FromBody] User user)
+    {
+        await _usersService.UpdateAsync(id, user);
+    }
 }
