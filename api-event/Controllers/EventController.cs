@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using api_event.Models;
 using api_event.Services;
@@ -22,7 +23,10 @@ public class EventController(EventsService eventsService) : ControllerBase
         Event? data = await eventsService.GetAsync(id);
         return Ok(data);
     }
-    
+    /// <summary>
+    /// </summary>
+    /// <remarks>salut bonjour</remarks>
+    /// <param name="eventData"></param>
     [HttpPost]
     public async void PostEvent([FromQuery] Event eventData)
     {

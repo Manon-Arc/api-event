@@ -1,11 +1,14 @@
+using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api_event;
 using api_event.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Ajouter la configuration des services directement dans le builder
 builder.Services.Configure<EventprojDBSettings>(
@@ -39,7 +42,8 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://yourwebsite.com")
         }
     });
-
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
 });
 
 
@@ -77,9 +81,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1");
-        c.RoutePrefix = string.Empty; // Swagger accessible à la racine
     });
 }
+
 
 app.UseHttpsRedirection();
 
