@@ -30,12 +30,20 @@ public class TicketController : ControllerBase
         return Ok(data);
     }
 
-    [Authorize(Policy = "User")]
-    [HttpPost("buy-ticket")]
-    public async Task<IActionResult> PostTicket([FromBody] Ticket ticket)
+    //   [Authorize(Policy = "User")]
+    // POST method now uses the DTO without Id
+    [HttpPost]
+    public async Task<ActionResult> PostTicket([FromBody] CreateTicketDto ticketDto)
     {
-        await _ticketsService.CreateAsync(ticket);
-        return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
+        var newTicket = new Ticket
+        {
+            UserID = ticketDto.UserID,
+            EventID = ticketDto.EventID,
+            ExpireDate = ticketDto.ExpireDate
+        };
+
+        await _ticketsService.CreateAsync(newTicket);
+        return Ok(newTicket);
     }
 
     [HttpDelete("")]
