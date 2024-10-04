@@ -44,10 +44,16 @@ public class EventGroupsController(
         await linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async void DeleteEventGroup(string id)
     {
         await eventGroupsService.RemoveAsync(id);
+    }
+
+    [HttpDelete("{id}/events/{linkId}")]
+    public async void DeleteLinkEventGroup(string id, string linkId)
+    {
+        await linkEventToGroupService.RemoveAsync(linkId);
     }
 
     [HttpPut("{id}")]
@@ -55,5 +61,4 @@ public class EventGroupsController(
     {
         await eventGroupsService.UpdateAsync(id, eventGroup);
     }
-
 }

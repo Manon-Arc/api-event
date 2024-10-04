@@ -27,4 +27,9 @@ public class LinkEventToGroupService
     {
         await _linkEventGroupCollection.InsertOneAsync(linkEventToGroup);
     }
+
+    public async Task RemoveAsync(string id)
+    {
+        await _linkEventGroupCollection.DeleteOneAsync(e => e.Id == id);
+    }
 }
