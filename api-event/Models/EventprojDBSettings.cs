@@ -17,4 +17,7 @@ public class EventprojDBSettings
     public string EventGroupsCollectionName { get; set; } = null!;
 
     public string LinkEventGroupCollectionName { get; set; } = null!;
+    
+    public string TicketOfficeCollectionName { get; set; } = null!;
+
 }

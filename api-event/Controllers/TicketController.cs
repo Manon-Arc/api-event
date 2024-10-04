@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

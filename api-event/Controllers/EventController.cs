@@ -33,7 +33,7 @@ public class EventController(EventsService eventsService) : ControllerBase
         await eventsService.CreateAsync(eventData);
     }
 
-    [HttpDelete("")]
+    [HttpDelete("{id}")]
     public async void DeleteEvent(string id)
     {
         await eventsService.RemoveAsync(id);

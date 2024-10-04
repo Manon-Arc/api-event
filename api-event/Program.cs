@@ -24,6 +24,7 @@ builder.Services.AddScoped<TicketsService>();
 builder.Services.AddScoped<EventsService>();
 builder.Services.AddScoped<EventGroupsService>();
 builder.Services.AddScoped<LinkEventToGroupService>();
+builder.Services.AddScoped<TicketOfficeService>();
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
