@@ -17,28 +17,28 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
     {
-        List<User> data = await _usersService.GetAsync();
+        List<UserModel> data = await _usersService.GetAsync();
         return Ok(data);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> GetUser(String id)
+    public async Task<ActionResult<UserModel>> GetUser(String id)
     {
-        User? data = await _usersService.GetAsync(id);
+        UserModel? data = await _usersService.GetAsync(id);
         return Ok(data);
     }
 
     [HttpPost]
-    public async void PostUser([FromQuery] User user)
+    public async void PostUser([FromQuery] UserModel userModel)
     {
-        await _usersService.CreateAsync(user);
+        await _usersService.CreateAsync(userModel);
     }
 
     [HttpPut("{id}")]
-    public async void PutUser(string id, [FromBody] User user)
+    public async void PutUser(string id, [FromBody] UserModel userModel)
     {
-        await _usersService.UpdateAsync(id, user);
+        await _usersService.UpdateAsync(id, userModel);
     }
 }

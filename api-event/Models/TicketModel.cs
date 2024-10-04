@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace api_event.Models;
 
-public class Ticket
+public class TicketModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

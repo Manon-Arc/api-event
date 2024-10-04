@@ -11,26 +11,26 @@ namespace api_event.Controllers;
 public class EventController(EventsService eventsService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
     {
-        List<Event> data = await eventsService.GetAsync();
+        List<EventModel> data = await eventsService.GetAsync();
         return Ok(data);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Event>> GetEvent(string id)
+    public async Task<ActionResult<EventModel>> GetEvent(string id)
     {
-        Event? data = await eventsService.GetAsync(id);
+        EventModel? data = await eventsService.GetAsync(id);
         return Ok(data);
     }
     /// <summary>
     /// </summary>
     /// <remarks>salut bonjour</remarks>
-    /// <param name="eventData"></param>
+    /// <param name="eventModelData"></param>
     [HttpPost]
-    public async void PostEvent([FromQuery] Event eventData)
+    public async void PostEvent([FromQuery] EventModel eventModelData)
     {
-        await eventsService.CreateAsync(eventData);
+        await eventsService.CreateAsync(eventModelData);
     }
 
     [HttpDelete("{id}")]
@@ -40,9 +40,9 @@ public class EventController(EventsService eventsService) : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async void PutEvent(string id, [FromQuery] Event eventData)
+    public async void PutEvent(string id, [FromQuery] EventModel eventModelData)
     {
-        await eventsService.UpdateAsync(id, eventData);
+        await eventsService.UpdateAsync(id, eventModelData);
     }
         
 }

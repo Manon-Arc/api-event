@@ -26,7 +26,7 @@ public class EventGroupsController(
     }
 
     [HttpGet("{id}/events")]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents(string id)
+    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents(string id)
     {
         var data = await linkEventToGroupService.GetEventGroupsByGroup(id);
         return Ok(data);
