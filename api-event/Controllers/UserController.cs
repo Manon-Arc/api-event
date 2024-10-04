@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
 
+//[Authorize]
 [Route("/[controller]")]
 [ApiController]
 public class UserController : ControllerBase
@@ -30,7 +31,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async void PostUser(User user)
+    public async void PostUser([FromQuery] User user)
     {
         await _usersService.CreateAsync(user);
     }

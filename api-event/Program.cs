@@ -7,32 +7,20 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Ajouter la configuration des services directement dans le builder
 builder.Services.Configure<EventprojDBSettings>(
     builder.Configuration.GetSection("EventprojDB"));
 
-// Enregistrer UsersService dans le conteneur de services
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt"));
+
+// Ajouter les services utilisateurs et credentials
 builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<CredentialsService>();
 builder.Services.AddScoped<TicketsService>();
+builder.Services.AddScoped<EventsService>();
 
-// Configure JWT authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
-
-builder.Services.AddControllers();
-
+// Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -51,25 +39,51 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configurer l'authentification JWT
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSetting:Issuer"],
+        ValidAudience = builder.Configuration["JwtSetting:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSetting:Key"]))
+    };
+});
+
+// Ajouter les contrôleurs
+builder.Services.AddControllers();
+
+// Créer l'application
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Ajouter les middlewares d'authentification et d'autorisation
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1");
-        c.RoutePrefix = string.Empty; // To make Swagger UI accessible at the root
+        c.RoutePrefix = string.Empty; // Swagger accessible à la racine
     });
 }
 
 app.UseHttpsRedirection();
 
-// Enable authentication and authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Ajouter le mapping des contrôleurs
 app.MapControllers();
 
+// Lancer l'application
 app.Run();
