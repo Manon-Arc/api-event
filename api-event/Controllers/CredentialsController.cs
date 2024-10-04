@@ -17,9 +17,9 @@ namespace api_event.Controllers
 
         // Endpoint pour enregistrer un nouvel utilisateur
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] User user, [FromQuery] string password)
+        public async Task<IActionResult> Register([FromQuery] CredentialsModel _credential)
         {
-            await _credentialService.RegisterAsync(user, password);
+            await _credentialService.RegisterAsync(_credential);
             return Ok("Utilisateur enregistré avec succès");
         }
 

@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Amazon.SecurityToken.Model;
 using Microsoft.IdentityModel.Tokens;
 
 namespace api_event.Services
@@ -28,13 +29,19 @@ namespace api_event.Services
         }
 
         // Enregistrement d'un utilisateur avec ses credentials
-        public async Task RegisterAsync(User user, string password)
+        public async Task RegisterAsync(CredentialsModel _credentials)
         {
+
+            var user = new User
+            {
+                Mail = _credentials.Mail
+            };
+
             // Création de l'utilisateur
             await _usersService.CreateAsync(user);
 
             // Hash du mot de passe et création des credentials
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(_credentials.Password);
             var credentials = new CredentialsModel { Mail = user.Mail, Password = hashedPassword, UserId = user.Id! };
             await _credentialsCollection.InsertOneAsync(credentials);
         }
