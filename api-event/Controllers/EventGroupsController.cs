@@ -33,10 +33,19 @@ public class EventGroupsController(
     }
 
     [HttpPost]
-    public async void PostEventGroup([FromQuery] EventGroupsModel eventGroup)
+    public async Task<ActionResult<Event>> PostEventGroups([FromQuery] EventGroupsDto eventDto)
     {
-        await eventGroupsService.CreateAsync(eventGroup);
+        var newEvent = new EventGroupsModel
+        {
+            Name = eventDto.Name,        };
+
+        await eventGroupsService.CreateAsync(newEvent);
+        return Ok(newEvent);
     }
+
+
+
+
 
     [HttpPost("{id}/events/{eventId}")]
     public async void PostLinkEventGroup(string id, string eventId)
