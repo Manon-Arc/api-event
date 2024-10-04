@@ -30,9 +30,10 @@ public class TicketController : ControllerBase
     }
 
     [HttpPost]
-    public async void PostTicket([FromQuery] Ticket ticket)
+    public async Task<IActionResult> PostTicket([FromBody] Ticket ticket)
     {
         await _ticketsService.CreateAsync(ticket);
+        return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
     }
 
 
