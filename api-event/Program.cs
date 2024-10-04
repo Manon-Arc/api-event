@@ -12,6 +12,7 @@ builder.Services.Configure<EventprojDBSettings>(
 
 // Enregistrer UsersService dans le conteneur de services
 builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<TicketsService>();
 
 // Configure JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
