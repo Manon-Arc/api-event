@@ -9,7 +9,6 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Ajouter la configuration des services directement dans le builder
 builder.Services.Configure<EventprojDBSettings>(
     builder.Configuration.GetSection("EventprojDB"));
@@ -84,7 +83,6 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1");
     });
 }
-
 
 app.UseHttpsRedirection();
 

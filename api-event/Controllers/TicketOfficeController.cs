@@ -45,5 +45,11 @@ public class TicketOfficeController : Controller
     {
         await _ticketsOfficeServiceService.RemoveAsync(id);
     }
+    
+    [HttpPut("{id}")]
+    public async void UpdateEventGroup(string id, [FromQuery] TicketOfficeModel ticketOffice)
+    {
+        await _ticketsOfficeServiceService.UpdateAsync(id, ticketOffice);
+    }
 }
 
