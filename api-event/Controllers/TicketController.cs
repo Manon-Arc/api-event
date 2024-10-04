@@ -1,5 +1,6 @@
 ﻿using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -29,12 +30,17 @@ public class TicketController : ControllerBase
         return Ok(data);
     }
 
-    [HttpPost]
+    [Authorize(Policy = "User")]
+    [HttpPost("buy-ticket")]
     public async Task<IActionResult> PostTicket([FromBody] Ticket ticket)
     {
         await _ticketsService.CreateAsync(ticket);
         return CreatedAtAction(nameof(GetTicket), new { id = ticket.Id }, ticket);
     }
 
-
+    [HttpDelete("")]
+    public async void DeleteEvent(string id)
+    {
+        await _ticketsService.RemoveAsync(id);
+    }
 }
