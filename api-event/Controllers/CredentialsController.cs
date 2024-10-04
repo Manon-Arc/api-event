@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace api_event.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class CredentialController : ControllerBase
     {
         private readonly CredentialsService _credentialService;
