@@ -10,8 +10,6 @@ public class EventprojDBSettings
 
     public string TicketsCollectionName { get; set; } = null!;
     
-    public string EventsCollectionName { get; set; } = null!;
-    
     public string CredentialsCollectionName { get; set; } = null!;
     
     public string EventsCollectionName { get; set; } = null!;
