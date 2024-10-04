@@ -18,6 +18,7 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.AddScoped<UsersService>();
 builder.Services.AddScoped<CredentialsService>();
 builder.Services.AddScoped<TicketsService>();
+builder.Services.AddScoped<EventsService>();
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
