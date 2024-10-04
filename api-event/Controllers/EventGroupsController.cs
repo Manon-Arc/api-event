@@ -55,4 +55,5 @@ public class EventGroupsController(
     {
         await eventGroupsService.UpdateAsync(id, eventGroup);
     }
+
 }
