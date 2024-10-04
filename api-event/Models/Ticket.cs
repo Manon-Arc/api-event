@@ -10,6 +10,8 @@ public class Ticket
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
+    public string? OfficeID { get; set; }
+
     public string UserID { get; set; } = null!;
 
     public string EventID { get; set; } = null!;
