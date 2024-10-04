@@ -33,7 +33,7 @@ public class TicketController : ControllerBase
     //   [Authorize(Policy = "User")]
     // POST method now uses the DTO without Id
     [HttpPost]
-    public async Task<ActionResult> PostTicket([FromBody] CreateTicketDto ticketDto)
+    public async Task<ActionResult> PostTicket([FromQuery] CreateTicketDto ticketDto)
     {
         var newTicket = new Ticket
         {
@@ -46,7 +46,7 @@ public class TicketController : ControllerBase
         return Ok(newTicket);
     }
 
-    [HttpDelete("")]
+    [HttpDelete("{id}")]
     public async void DeleteEvent(string id)
     {
         await _ticketsService.RemoveAsync(id);
