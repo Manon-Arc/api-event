@@ -33,7 +33,7 @@ public class EventGroupsController(
     }
 
     [HttpPost]
-    public async Task<ActionResult<Event>> PostEventGroups([FromQuery] CreateEventGroupsDto eventDto)
+    public async Task<ActionResult<EventModel>> PostEventGroups([FromQuery] CreateEventGroupsDto eventDto)
     {
         var newEvent = new EventGroupsModel
         {

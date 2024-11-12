@@ -33,7 +33,7 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> PostUser([FromQuery] CreateUserDto userDto)
     {
-        var newUser = new User
+        var newUser = new UserModel
         {
             FirstName = userDto.FirstName,
             LastName = userDto.LastName,
