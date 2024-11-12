@@ -69,7 +69,6 @@ public class EventGroupsController(
         return Ok(newEvent);
     }
 
-
     /// <summary>
     ///     Add event to group with identifier
     /// </summary>
@@ -82,18 +81,38 @@ public class EventGroupsController(
         await linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
     }
 
+    /// <summary>
+    ///     Delete an event group by its identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     public async void DeleteEventGroup(string id)
     {
         await eventGroupsService.RemoveAsync(id);
     }
 
+
+    /// <summary>
+    ///     Remove event from group with identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpDelete("{id}/events/{linkId}")]
     public async void DeleteLinkEventGroup(string id, string linkId)
     {
         await linkEventToGroupService.RemoveAsync(linkId);
     }
 
+
+    /// <summary>
+    ///     Update events group data
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPut("{id}")]
     public async void UpdateEventGroup(string id, [FromQuery] EventGroupsModel eventGroup)
     {

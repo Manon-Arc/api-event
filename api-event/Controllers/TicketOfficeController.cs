@@ -14,42 +14,68 @@ public class TicketOfficeController : Controller
         _ticketsOfficeServiceService = ticketsOfficeService;
     }
 
+    /// <summary>
+    ///     Get all ticket offices
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TicketOfficeModel>>> GetTickets()
+    public async Task<ActionResult<IEnumerable<TicketOfficeModel>>> GetTicketOffices()
     {
-        List<TicketOfficeModel> data = await _ticketsOfficeServiceService.GetAsync();
+        var data = await _ticketsOfficeServiceService.GetAsync();
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Get ticket office by identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<TicketOfficeModel>> GetTicket(String id)
+    public async Task<ActionResult<TicketOfficeModel>> GetTicketOffice(string id)
     {
-        TicketOfficeModel? data = await _ticketsOfficeServiceService.GetAsync(id);
+        var data = await _ticketsOfficeServiceService.GetAsync(id);
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Create a new ticket office
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> PostTicket([FromQuery] TicketOfficeModel ticketOffice)
+    public async Task<IActionResult> PostTicketOffice([FromQuery] TicketOfficeModel ticketOffice)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-         
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         await _ticketsOfficeServiceService.CreateAsync(ticketOffice);
-        return CreatedAtAction(nameof(GetTicket), new { id = ticketOffice.Id }, ticketOffice);
+        return CreatedAtAction(nameof(GetTicketOffice), new { id = ticketOffice.Id }, ticketOffice);
     }
-    
+
+    /// <summary>
+    ///     Delete ticket office by its identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpDelete("{id}")]
-    public async void DeleteEvent(string id)
+    public async void DeleteTicketOffice(string id)
     {
         await _ticketsOfficeServiceService.RemoveAsync(id);
     }
-    
+
+    /// <summary>
+    ///     Replace data of ticket office which has identifier entered
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPut("{id}")]
-    public async void UpdateEventGroup(string id, [FromQuery] TicketOfficeModel ticketOffice)
+    public async void UpdateTicketOffice(string id, [FromQuery] TicketOfficeModel ticketOffice)
     {
         await _ticketsOfficeServiceService.UpdateAsync(id, ticketOffice);
     }
 }
-

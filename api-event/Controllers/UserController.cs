@@ -11,25 +11,43 @@ public class UserController : ControllerBase
 {
     private readonly UsersService _usersService;
 
-    public UserController ( UsersService usersService)
+    public UserController(UsersService usersService)
     {
         _usersService = usersService;
     }
 
+    /// <summary>
+    ///     Get all users
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
     {
-        List<UserModel> data = await _usersService.GetAsync();
+        var data = await _usersService.GetAsync();
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Get user with specified identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserModel>> GetUser(String id)
+    public async Task<ActionResult<UserModel>> GetUser(string id)
     {
-        UserModel? data = await _usersService.GetAsync(id);
+        var data = await _usersService.GetAsync(id);
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Create new user
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPost]
     public async Task<ActionResult> PostUser([FromQuery] CreateUserDto userDto)
     {
@@ -45,16 +63,27 @@ public class UserController : ControllerBase
         return Ok(newUser);
     }
 
+    /// <summary>
+    ///     Replace data of user with specified identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPut("{id}")]
     public async void PutUser(string id, [FromQuery] UserModel userModel)
     {
         await _usersService.UpdateAsync(id, userModel);
     }
-    
+
+    /// <summary>
+    ///     Delete user which has specified identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     public async void DeleteEvent(string id)
     {
         await _usersService.RemoveAsync(id);
     }
 }
-
