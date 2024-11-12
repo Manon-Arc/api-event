@@ -23,6 +23,11 @@ public class LinkEventToGroupService
         return await _linkEventGroupCollection.Find(e => e.eventGroupId == groupId).ToListAsync();
     }
 
+    public async Task<List<LinkEventToGroupModel>> GetEventGroupsByEvent(string eventId)
+    {
+        return await _linkEventGroupCollection.Find(e => e.eventId == eventId).ToListAsync();
+    }
+
     public async Task CreateAsync(LinkEventToGroupModel linkEventToGroup)
     {
         await _linkEventGroupCollection.InsertOneAsync(linkEventToGroup);

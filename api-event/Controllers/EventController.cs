@@ -9,10 +9,12 @@ namespace api_event.Controllers;
 public class EventController : ControllerBase
 {
     private readonly EventsService _eventsService;
+    private readonly LinkEventToGroupService _linkEventToGroupService;
 
-    public EventController(EventsService eventsService)
+    public EventController(EventsService eventsService, LinkEventToGroupService linkEventToGroupService)
     {
         _eventsService = eventsService;
+        _linkEventToGroupService = linkEventToGroupService;
     }
 
     [HttpGet]
@@ -26,6 +28,13 @@ public class EventController : ControllerBase
     public async Task<ActionResult<EventModel>> GetEvent(string id)
     {
         var data = await _eventsService.GetAsync(id);
+        return Ok(data);
+    }
+
+    [HttpGet("{id}/groups")]
+    public async Task<ActionResult<IEnumerable<EventModel>>> GetGroups(string id)
+    {
+        var data = await _linkEventToGroupService.GetEventGroupsByEvent(id);
         return Ok(data);
     }
 
