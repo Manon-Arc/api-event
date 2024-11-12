@@ -31,9 +31,18 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async void PostUser([FromQuery] UserModel userModel)
+    public async Task<ActionResult> PostUser([FromQuery] CreateUserDto userDto)
     {
-        await _usersService.CreateAsync(userModel);
+        var newUser = new User
+        {
+            FirstName = userDto.FirstName,
+            LastName = userDto.LastName,
+            Mail = userDto.Mail,
+            Permission = 1
+        };
+
+        await _usersService.CreateAsync(newUser);
+        return Ok(newUser);
     }
 
     [HttpPut("{id}")]
@@ -42,3 +51,4 @@ public class UserController : ControllerBase
         await _usersService.UpdateAsync(id, userModel);
     }
 }
+
