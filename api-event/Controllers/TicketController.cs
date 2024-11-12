@@ -51,4 +51,10 @@ public class TicketController : ControllerBase
     {
         await _ticketsService.RemoveAsync(id);
     }
+    
+    [HttpPut("{id}")]
+    public async void UpdateEventGroup(string id, [FromQuery] TicketModel ticket)
+    {
+        await _ticketsService.UpdateAsync(id, ticket);
+    }
 }
