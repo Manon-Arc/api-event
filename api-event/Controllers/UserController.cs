@@ -46,9 +46,15 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async void PutUser(string id, [FromBody] UserModel userModel)
+    public async void PutUser(string id, [FromQuery] UserModel userModel)
     {
         await _usersService.UpdateAsync(id, userModel);
+    }
+    
+    [HttpDelete("{id}")]
+    public async void DeleteEvent(string id)
+    {
+        await _usersService.RemoveAsync(id);
     }
 }
 
