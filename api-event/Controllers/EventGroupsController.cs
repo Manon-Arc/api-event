@@ -11,6 +11,12 @@ public class EventGroupsController(
     LinkEventToGroupService linkEventToGroupService)
     : ControllerBase
 {
+    /// <summary>
+    ///     Get all events group
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventGroupsModel>>> GetEventGroups()
     {
@@ -18,6 +24,12 @@ public class EventGroupsController(
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Get events group by its identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<EventGroupsModel>> GetEventGroup(string id)
     {
@@ -25,6 +37,13 @@ public class EventGroupsController(
         return Ok(data);
     }
 
+
+    /// <summary>
+    ///     Get the list of event identifiers present in the event group which has the specified identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}/events")]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents(string id)
     {
@@ -32,21 +51,31 @@ public class EventGroupsController(
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Create new events group
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPost]
     public async Task<ActionResult<EventModel>> PostEventGroups([FromQuery] CreateEventGroupsDto eventDto)
     {
         var newEvent = new EventGroupsModel
         {
-            Name = eventDto.Name,        };
+            Name = eventDto.Name
+        };
 
         await eventGroupsService.CreateAsync(newEvent);
         return Ok(newEvent);
     }
 
 
-
-
-
+    /// <summary>
+    ///     Add event to group with identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPost("{id}/events/{eventId}")]
     public async void PostLinkEventGroup(string id, string eventId)
     {
