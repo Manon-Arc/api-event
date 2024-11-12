@@ -41,15 +41,17 @@ public class TicketOfficeController : Controller
     }
     
     [HttpDelete("{id}")]
-    public async void DeleteEvent(string id)
+    public async Task<IActionResult> DeleteEvent(string id)
     {
         await _ticketsOfficeServiceService.RemoveAsync(id);
+        return NoContent();
     }
     
     [HttpPut("{id}")]
-    public async void UpdateEventGroup(string id, [FromQuery] TicketOfficeModel ticketOffice)
+    public async Task<IActionResult> UpdateEventGroup(string id, [FromQuery] TicketOfficeModel ticketOffice)
     {
         await _ticketsOfficeServiceService.UpdateAsync(id, ticketOffice);
+        return Ok();
     }
 }
 

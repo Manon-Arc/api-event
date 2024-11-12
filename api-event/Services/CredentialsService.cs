@@ -4,7 +4,6 @@ using MongoDB.Driver;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Amazon.SecurityToken.Model;
 using Microsoft.IdentityModel.Tokens;
 
 namespace api_event.Services

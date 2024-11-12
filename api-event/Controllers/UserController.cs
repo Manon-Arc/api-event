@@ -46,9 +46,10 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async void PutUser(string id, [FromBody] UserModel userModel)
+    public async Task<ActionResult> PutUser(string id, [FromBody] UserModel userModel)
     {
         await _usersService.UpdateAsync(id, userModel);
+        return Ok();
     }
 }
 

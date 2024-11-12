@@ -62,8 +62,9 @@ public class EventController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async void PutEvent(string id, [FromQuery] EventModel eventModelData)
+    public async Task<ActionResult> PutEvent(string id, [FromQuery] EventModel eventModelData)
     {
         await _eventsService.UpdateAsync(id, eventModelData);
+        return Ok();
     }
 }

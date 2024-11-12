@@ -1,6 +1,5 @@
 ﻿using api_event.Models;
 using api_event.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -47,8 +46,9 @@ public class TicketController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async void DeleteEvent(string id)
+    public async Task<ActionResult> DeleteEvent(string id)
     {
         await _ticketsService.RemoveAsync(id);
+        return NoContent();
     }
 }
