@@ -1,4 +1,5 @@
-﻿using api_event;
+﻿using System.Text.RegularExpressions;
+using api_event;
 using api_event.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -31,9 +32,24 @@ public class UsersService
     public async Task CreateAsync(UserModel newUserModel) =>
         await _usersCollection.InsertOneAsync(newUserModel);
 
-    public async Task UpdateAsync(string id, UserModel updatedBook) =>
-        await _usersCollection.ReplaceOneAsync(x => x.Id == id, updatedBook);
+    public async Task UpdateAsync(string id, UserModel updatedUser) =>
+        await _usersCollection.ReplaceOneAsync(x => x.Id == id, updatedUser);
 
     public async Task RemoveAsync(string id) =>
         await _usersCollection.DeleteOneAsync(x => x.Id == id);
+    
+    public async Task<UserModel> GetByEmailAsync(string email)
+    {
+        return await _usersCollection.Find(u => u.Mail == email).FirstOrDefaultAsync();
+    }
+
+    public bool IsEmailValid(string email)
+    {
+        Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        return EmailRegex.IsMatch(email);
+    }
 }

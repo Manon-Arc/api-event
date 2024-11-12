@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace api_event.Models;
@@ -14,7 +15,5 @@ public class UserModel
     public string LastName { get; set; } = null!;
     
     public string Mail { get; set; } = null!;
-    
-    public int? Permission { get; set; } = null!;
     
 }

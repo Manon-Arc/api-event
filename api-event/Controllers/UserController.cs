@@ -10,10 +10,12 @@ namespace api_event.Controllers;
 public class UserController : ControllerBase
 {
     private readonly UsersService _usersService;
+    private readonly PermissionService _permissionService;
 
-    public UserController ( UsersService usersService)
+    public UserController (UsersService usersService, PermissionService permissionService)
     {
         _usersService = usersService;
+        _permissionService = permissionService;
     }
 
     [HttpGet]
@@ -31,18 +33,30 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> PostUser([FromQuery] CreateUserDto userDto)
+    public async Task<IActionResult> PostUser([FromQuery] CreateUserDto userDto)
     {
+        if (!_usersService.IsEmailValid(userDto.Mail))
+        {
+            return BadRequest(new { Message = "Invalid email address format." });
+        }
+        
+        var existingUser = await _usersService.GetByEmailAsync(userDto.Mail);
+        if (existingUser != null)
+        {
+            return Conflict(new { Message = "Email is already in use." });
+        }
         var newUser = new UserModel
+            
         {
             FirstName = userDto.FirstName,
             LastName = userDto.LastName,
             Mail = userDto.Mail,
-            Permission = 1
         };
-
+        
         await _usersService.CreateAsync(newUser);
-        return Ok(newUser);
+        await _permissionService.CreateAsync(newUser.Id);
+        
+        return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
     }
 
     [HttpPut("{id}")]

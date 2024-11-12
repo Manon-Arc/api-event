@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api_event;
 using api_event.Services;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +22,7 @@ builder.Services.AddScoped<EventsService>();
 builder.Services.AddScoped<EventGroupsService>();
 builder.Services.AddScoped<LinkEventToGroupService>();
 builder.Services.AddScoped<TicketOfficeService>();
+builder.Services.AddScoped<PermissionService>();
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
@@ -87,6 +87,22 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == StatusCodes.Status404NotFound)
+    {
+        context.Response.ContentType = "application/json";
+        var jsonResponse = new
+        {
+            Message = "The requested route does not exist"
+        };
+
+        await context.Response.WriteAsJsonAsync(jsonResponse);
+    }
+});
 
 // Ajouter le mapping des contrôleurs
 app.MapControllers();
