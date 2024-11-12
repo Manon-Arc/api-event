@@ -1,48 +1,69 @@
-using System.Globalization;
-using Microsoft.AspNetCore.Mvc;
 using api_event.Models;
 using api_event.Services;
-using MongoDB.Bson;
+using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
 
 [Route("/[controller]")]
 [ApiController]
-public class EventController(EventsService eventsService) : ControllerBase
+public class EventController : ControllerBase
 {
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+    private readonly EventsService _eventsService;
+
+    public EventController(EventsService eventsService)
     {
-        List<Event> data = await eventsService.GetAsync();
+        _eventsService = eventsService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
+    {
+        var data = await _eventsService.GetAsync();
         return Ok(data);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Event>> GetEvent(string id)
+    public async Task<ActionResult<EventModel>> GetEvent(string id)
     {
-        Event? data = await eventsService.GetAsync(id);
+        var data = await _eventsService.GetAsync(id);
         return Ok(data);
     }
+
     /// <summary>
+    ///     Creates a new event
     /// </summary>
-    /// <remarks>salut bonjour</remarks>
-    /// <param name="eventData"></param>
+    /// <remarks>
+    ///     Sample request:
+    ///     POST /Event
+    ///     {
+    ///     "name": "Event Name"
+    ///     }
+    /// </remarks>
+    /// <param name="eventDto">The event data to create the event</param>
+    /// <returns>The newly created event</returns>
     [HttpPost]
-    public async void PostEvent([FromQuery] Event eventData)
+    public async Task<ActionResult<EventModel>> PostEvent([FromQuery] CreateEventDto eventDto)
     {
-        await eventsService.CreateAsync(eventData);
+        var newEvent = new EventModel
+        {
+            Name = eventDto.Name,
+            Date = DateTimeOffset.UtcNow // Example, you can modify this as necessary
+        };
+
+        await _eventsService.CreateAsync(newEvent);
+        return Ok(newEvent);
     }
 
     [HttpDelete("{id}")]
-    public async void DeleteEvent(string id)
+    public async Task<ActionResult> DeleteEvent(string id)
     {
-        await eventsService.RemoveAsync(id);
+        await _eventsService.RemoveAsync(id);
+        return NoContent();
     }
 
     [HttpPut("{id}")]
-    public async void PutEvent(string id, [FromQuery] Event eventData)
+    public async void PutEvent(string id, [FromQuery] EventModel eventModelData)
     {
-        await eventsService.UpdateAsync(id, eventData);
+        await _eventsService.UpdateAsync(id, eventModelData);
     }
-        
 }

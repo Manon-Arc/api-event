@@ -26,17 +26,26 @@ public class EventGroupsController(
     }
 
     [HttpGet("{id}/events")]
-    public async Task<ActionResult<IEnumerable<Event>>> GetEvents(string id)
+    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents(string id)
     {
         var data = await linkEventToGroupService.GetEventGroupsByGroup(id);
         return Ok(data);
     }
 
     [HttpPost]
-    public async void PostEventGroup([FromQuery] EventGroupsModel eventGroup)
+    public async Task<ActionResult<EventModel>> PostEventGroups([FromQuery] CreateEventGroupsDto eventDto)
     {
-        await eventGroupsService.CreateAsync(eventGroup);
+        var newEvent = new EventGroupsModel
+        {
+            Name = eventDto.Name,        };
+
+        await eventGroupsService.CreateAsync(newEvent);
+        return Ok(newEvent);
     }
+
+
+
+
 
     [HttpPost("{id}/events/{eventId}")]
     public async void PostLinkEventGroup(string id, string eventId)
@@ -44,10 +53,16 @@ public class EventGroupsController(
         await linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async void DeleteEventGroup(string id)
     {
         await eventGroupsService.RemoveAsync(id);
+    }
+
+    [HttpDelete("{id}/events/{linkId}")]
+    public async void DeleteLinkEventGroup(string id, string linkId)
+    {
+        await linkEventToGroupService.RemoveAsync(linkId);
     }
 
     [HttpPut("{id}")]
@@ -55,5 +70,4 @@ public class EventGroupsController(
     {
         await eventGroupsService.UpdateAsync(id, eventGroup);
     }
-
 }

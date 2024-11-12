@@ -1,4 +1,4 @@
-using api_event.Models;
+﻿using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,16 +17,16 @@ public class TicketController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
+    public async Task<ActionResult<IEnumerable<TicketModel>>> GetTickets()
     {
-        List<Ticket> data = await _ticketsService.GetAsync();
+        List<TicketModel> data = await _ticketsService.GetAsync();
         return Ok(data);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Ticket>> GetTicket(String id)
+    public async Task<ActionResult<TicketModel>> GetTicket(String id)
     {
-        Ticket? data = await _ticketsService.GetAsync(id);
+        TicketModel? data = await _ticketsService.GetAsync(id);
         return Ok(data);
     }
 
@@ -35,7 +35,7 @@ public class TicketController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> PostTicket([FromQuery] CreateTicketDto ticketDto)
     {
-        var newTicket = new Ticket
+        var newTicket = new TicketModel
         {
             UserID = ticketDto.UserID,
             EventID = ticketDto.EventID,

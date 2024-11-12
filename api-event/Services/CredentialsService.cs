@@ -32,7 +32,7 @@ namespace api_event.Services
         public async Task RegisterAsync(CredentialsModel _credentials)
         {
 
-            var user = new User
+            var user = new UserModel
             {
                 Mail = _credentials.Mail
             };
@@ -60,7 +60,7 @@ namespace api_event.Services
         }
 
         // Génération du token JWT
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(UserModel userModel)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
@@ -68,8 +68,8 @@ namespace api_event.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Mail)
+                    new Claim(ClaimTypes.Name, userModel.Id.ToString()),
+                    new Claim(ClaimTypes.Email, userModel.Mail)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
