@@ -17,6 +17,12 @@ public class EventController : ControllerBase
         _linkEventToGroupService = linkEventToGroupService;
     }
 
+    /// <summary>
+    ///     Get all events register
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
     {
@@ -24,6 +30,12 @@ public class EventController : ControllerBase
         return Ok(data);
     }
 
+    /// <summary>
+    ///     Get event which have identifier entered
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<EventModel>> GetEvent(string id)
     {
@@ -31,6 +43,13 @@ public class EventController : ControllerBase
         return Ok(data);
     }
 
+
+    /// <summary>
+    ///     Get groups to which the event belongs
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpGet("{id}/groups")]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetGroups(string id)
     {
@@ -63,6 +82,12 @@ public class EventController : ControllerBase
         return Ok(newEvent);
     }
 
+    /// <summary>
+    ///     Delete one event by its identifier
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteEvent(string id)
     {
@@ -70,6 +95,12 @@ public class EventController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    ///     Put new value to replace current event data
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    /// <returns></returns>
     [HttpPut("{id}")]
     public async void PutEvent(string id, [FromQuery] EventModel eventModelData)
     {
