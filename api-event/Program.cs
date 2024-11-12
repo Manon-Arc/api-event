@@ -16,7 +16,6 @@ builder.Services.Configure<EventprojDBSettings>(
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));
 
-// Ajouter les services utilisateurs et credentials
 builder.Services.AddScoped<UsersService>();
 builder.Services.AddScoped<CredentialsService>();
 builder.Services.AddScoped<TicketsService>();
