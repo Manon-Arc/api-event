@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace api_event.Models;
 
-public class LinkEventToGroupModel
+public class LinkEventToGroupDto
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

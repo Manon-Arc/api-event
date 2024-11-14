@@ -1,81 +1,80 @@
-﻿using api_event.Models;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Amazon.SecurityToken.Model;
+using api_event.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
-namespace api_event.Services
+namespace api_event.Services;
+
+public class CredentialsService
 {
-    public class CredentialsService
+    private readonly IMongoCollection<CredentialsDto> _credentialsCollection;
+    private readonly JwtSettings _jwtSettings;
+    private readonly UsersService _usersService;
+
+    public CredentialsService(IOptions<EventprojDBSettings> dbSettings, UsersService usersService,
+        IOptions<JwtSettings> jwtSettings)
     {
-        private readonly IMongoCollection<CredentialsModel> _credentialsCollection;
-        private readonly UsersService _usersService;
-        private readonly JwtSettings _jwtSettings;
+        var mongoClient = new MongoClient(
+            dbSettings.Value.ConnectionString);
 
-        public CredentialsService(IOptions<EventprojDBSettings> dbSettings, UsersService usersService, IOptions<JwtSettings> jwtSettings)
+        var mongoDatabase = mongoClient.GetDatabase(
+            dbSettings.Value.DatabaseName);
+
+        _credentialsCollection =
+            mongoDatabase.GetCollection<CredentialsDto>(dbSettings.Value.CredentialsCollectionName);
+        _usersService = usersService;
+        _jwtSettings = jwtSettings.Value;
+    }
+
+    // Enregistrement d'un utilisateur avec ses credentials
+    public async Task RegisterAsync(CredentialsIdlessDto credentials)
+    {
+        var user = new UserDto
         {
-            var mongoClient = new MongoClient(
-                dbSettings.Value.ConnectionString);
-            
-            var mongoDatabase = mongoClient.GetDatabase(
-                dbSettings.Value.DatabaseName);
-            
-            _credentialsCollection = mongoDatabase.GetCollection<CredentialsModel>(dbSettings.Value.CredentialsCollectionName);
-            _usersService = usersService;
-            _jwtSettings = jwtSettings.Value;
-        }
+            mail = credentials.Mail
+        };
 
-        // Enregistrement d'un utilisateur avec ses credentials
-        public async Task RegisterAsync(CredentialsPostDto _credentials)
+        // Création de l'utilisateur
+        await _usersService.CreateAsync(user);
+
+        // Hash du mot de passe et création des credentials
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(credentials.Password);
+        var newCredentials = new CredentialsDto { Mail = user.mail, Password = hashedPassword, UserId = user.Id! };
+        await _credentialsCollection.InsertOneAsync(newCredentials);
+    }
+
+    // Login avec mail et mot de passe
+    public async Task<string?> LoginAsync(CredentialsDto credentials)
+    {
+        var storedCredential = await _credentialsCollection.Find(c => c.Mail == credentials.Mail).FirstOrDefaultAsync();
+        if (storedCredential == null ||
+            !BCrypt.Net.BCrypt.Verify(credentials.Password,
+                storedCredential.Password)) return null; // Credentials invalides
+
+        var user = await _usersService.GetAsync(storedCredential.UserId);
+        return GenerateJwtToken(user!);
+    }
+
+    // Génération du token JWT
+    private string GenerateJwtToken(UserDto userDto)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-
-            var user = new UserModel
+            Subject = new ClaimsIdentity(new[]
             {
-                Mail = _credentials.Mail
-            };
-
-            // Création de l'utilisateur
-            await _usersService.CreateAsync(user);
-
-            // Hash du mot de passe et création des credentials
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(_credentials.Password);
-            var credentials = new CredentialsModel { Mail = user.Mail, Password = hashedPassword, UserId = user.Id! };
-            await _credentialsCollection.InsertOneAsync(credentials);
-        }
-
-        // Login avec mail et mot de passe
-        public async Task<string?> LoginAsync(CredentialsModel credentials)
-        {
-            var storedCredential = await _credentialsCollection.Find(c => c.Mail == credentials.Mail).FirstOrDefaultAsync();
-            if (storedCredential == null || !BCrypt.Net.BCrypt.Verify(credentials.Password, storedCredential.Password))
-            {
-                return null; // Credentials invalides
-            }
-
-            var user = await _usersService.GetAsync(storedCredential.UserId);
-            return GenerateJwtToken(user!);
-        }
-
-        // Génération du token JWT
-        private string GenerateJwtToken(UserModel userModel)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, userModel.Id.ToString()),
-                    new Claim(ClaimTypes.Email, userModel.Mail)
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
+                new Claim(ClaimTypes.Name, userDto.Id),
+                new Claim(ClaimTypes.Email, userDto.mail)
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }

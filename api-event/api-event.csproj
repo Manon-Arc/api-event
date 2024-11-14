@@ -5,35 +5,34 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>api_event</RootNamespace>
-	<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<NoWarn>$(NoWarn);1591</NoWarn>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3"/>
-        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.0" />
-        <PackageReference Include="MongoDB.Bson" Version="2.29.0" />
-        <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.0"/>
+        <PackageReference Include="MongoDB.Bson" Version="2.29.0"/>
+        <PackageReference Include="MongoDB.Driver" Version="2.29.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Credentials\" />
-      <Folder Include="Models\EventGroup\" />
-      <Folder Include="Models\Event\" />
-      <Folder Include="Models\LinkEventToGroup\" />
-      <Folder Include="Models\TicketOffice\" />
-      <Folder Include="Models\Ticket\" />
-      <Folder Include="Models\User\" />
+        <Folder Include="Models\Credentials\"/>
+        <Folder Include="Models\EventGroup\"/>
+        <Folder Include="Models\Event\"/>
+        <Folder Include="Models\LinkEventToGroup\"/>
+        <Folder Include="Models\Ticket\"/>
+        <Folder Include="Models\User\"/>
     </ItemGroup>
 
 </Project>

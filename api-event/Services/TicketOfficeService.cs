@@ -6,7 +6,7 @@ namespace api_event.Services;
 
 public class TicketOfficeService
 {
-    private readonly IMongoCollection<TicketOfficeModel> _ticketOfficesCollection;
+    private readonly IMongoCollection<TicketOfficeDto> _ticketOfficesCollection;
 
     public TicketOfficeService(
         IOptions<EventprojDBSettings> eventprojDatabaseSettings)
@@ -17,21 +17,43 @@ public class TicketOfficeService
         var mongoDatabase = mongoClient.GetDatabase(
             eventprojDatabaseSettings.Value.DatabaseName);
 
-        _ticketOfficesCollection = mongoDatabase.GetCollection<TicketOfficeModel>(eventprojDatabaseSettings.Value.TicketOfficeCollectionName);
+        _ticketOfficesCollection =
+            mongoDatabase.GetCollection<TicketOfficeDto>(eventprojDatabaseSettings.Value.TicketOfficeCollectionName);
     }
 
-    public async Task<List<TicketOfficeModel>> GetAsync() =>
-        await _ticketOfficesCollection.Find(_ => true).ToListAsync();
+    public async Task<List<TicketOfficeDto>> GetAsync()
+    {
+        return await _ticketOfficesCollection.Find(_ => true).ToListAsync();
+    }
 
-    public async Task<TicketOfficeModel?> GetAsync(string id) =>
-    await _ticketOfficesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<TicketOfficeDto?> GetAsync(string id)
+    {
+        return await _ticketOfficesCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    }
 
-    public async Task CreateAsync(TicketOfficeModel newTicketOffice) =>
-        await _ticketOfficesCollection.InsertOneAsync(newTicketOffice);
+    public async Task CreateAsync(TicketOfficeDto ticketOfficeDto)
+    {
+        await _ticketOfficesCollection.InsertOneAsync(ticketOfficeDto);
+    }
 
-    public async Task UpdateAsync(string id, TicketOfficeModel updatedTicketOffice) =>
-        await _ticketOfficesCollection.ReplaceOneAsync(x => x.Id == id, updatedTicketOffice);
+    public async Task UpdateAsync(string id, TicketOfficeIdlessDto updatedTicketOffice)
+    {
+        var ticketOffice = new TicketOfficeDto
+        {
+            Id = id,
+            name = updatedTicketOffice.name,
+            eventId = updatedTicketOffice.eventId,
+            price = updatedTicketOffice.price,
+            closeDate = updatedTicketOffice.closeDate,
+            eventDate = updatedTicketOffice.eventDate,
+            openDate = updatedTicketOffice.openDate,
+            ticketCount = updatedTicketOffice.ticketCount
+        };
+        await _ticketOfficesCollection.ReplaceOneAsync(x => x.Id == id, ticketOffice);
+    }
 
-    public async Task RemoveAsync(string id) =>
+    public async Task RemoveAsync(string id)
+    {
         await _ticketOfficesCollection.DeleteOneAsync(x => x.Id == id);
+    }
 }

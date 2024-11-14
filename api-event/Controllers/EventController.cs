@@ -27,7 +27,7 @@ public class EventController : ControllerBase
     /// <response code="200">Returns the list of events.</response>
     /// <response code="500">If there was an error retrieving the events.</response>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
+    public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents()
     {
         var data = await _eventsService.GetAsync();
         return Ok(data);
@@ -44,7 +44,7 @@ public class EventController : ControllerBase
     /// <response code="200">Returns the event with the specified ID.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpGet("{id}")]
-    public async Task<ActionResult<EventModel>> GetEvent(string id)
+    public async Task<ActionResult<EventDto>> GetEvent(string id)
     {
         var data = await _eventsService.GetAsync(id);
         if (data == null)
@@ -65,7 +65,7 @@ public class EventController : ControllerBase
     /// <response code="200">Returns the list of groups associated with the event.</response>
     /// <response code="404">If no groups are found for the specified event.</response>
     [HttpGet("{id}/groups")]
-    public async Task<ActionResult<IEnumerable<EventModel>>> GetGroups(string id)
+    public async Task<ActionResult<IEnumerable<EventDto>>> GetGroups(string id)
     {
         var data = await _linkEventToGroupService.GetEventGroupsByEvent(id);
         if (data == null)
@@ -91,16 +91,16 @@ public class EventController : ControllerBase
     /// <response code="201">Returns the newly created event.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult<EventModel>> PostEvent([FromBody] CreateEventDto eventDto)
+    public async Task<ActionResult<EventDto>> PostEvent([FromQuery] EventIdlessDto eventIdlessDto)
     {
-        if (eventDto == null || string.IsNullOrEmpty(eventDto.Name))
+        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.Name))
         {
             return BadRequest("Event data is required.");
         }
 
-        var newEvent = new EventModel
+        var newEvent = new EventDto
         {
-            Name = eventDto.Name,
+            Name = eventIdlessDto.Name,
             Date = DateTimeOffset.UtcNow // Example, you can modify this as necessary
         };
 
@@ -142,9 +142,9 @@ public class EventController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutEvent(string id, [FromBody] EventModel eventModelData)
+    public async void PutEvent(string id, [FromQuery] EventIdlessDto eventDtoData)
     {
-        if (eventModelData == null)
+        if (eventDtoData == null)
         {
             return BadRequest("Event data is required.");
         }
@@ -155,7 +155,7 @@ public class EventController : ControllerBase
             return NotFound();
         }
 
-        await _eventsService.UpdateAsync(id, eventModelData);
+        await _eventsService.UpdateAsync(id, eventDtoData);
         return NoContent();
     }
 }

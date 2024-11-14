@@ -8,8 +8,8 @@ namespace api_event.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly UsersService _usersService;
     private readonly PermissionService _permissionService;
+    private readonly UsersService _usersService;
 
     public UserController(UsersService usersService, PermissionService permissionService)
     {
@@ -24,7 +24,7 @@ public class UserController : ControllerBase
     /// <returns>A list of <see cref="UserModel"/> objects.</returns>
     /// <response code="200">Returns the list of users.</response>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
         var data = await _usersService.GetAsync();
         return Ok(data);
@@ -38,7 +38,7 @@ public class UserController : ControllerBase
     /// <response code="200">Returns the user with the specified ID.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserModel>> GetUser(string id)
+    public async Task<ActionResult<UserDto>> GetUser(string id)
     {
         var data = await _usersService.GetAsync(id);
         if (data == null)
@@ -57,24 +57,20 @@ public class UserController : ControllerBase
     /// <response code="400">If the email is invalid.</response>
     /// <response code="409">If the email is already in use.</response>
     [HttpPost]
-    public async Task<IActionResult> PostUser([FromQuery] CreateUserDto userDto)
+    public async Task<IActionResult> PostUser([FromQuery] UserIdlessDto userIdlessDto)
     {
-        if (!_usersService.IsEmailValid(userDto.Mail))
-        {
+        if (!_usersService.IsEmailValid(userIdlessDto.mail))
             return BadRequest(new { Message = "Invalid email address format." });
-        }
 
-        var existingUser = await _usersService.GetByEmailAsync(userDto.Mail);
-        if (existingUser != null)
-        {
-            return Conflict(new { Message = "Email is already in use." });
-        }
+        var existingUser = await _usersService.GetByEmailAsync(userIdlessDto.mail);
+        if (existingUser != null) return Conflict(new { Message = "Email is already in use." });
 
-        var newUser = new UserModel
+        var newUser = new UserDto
         {
-            FirstName = userDto.FirstName,
-            LastName = userDto.LastName,
-            Mail = userDto.Mail,
+            firstName = userIdlessDto.firstName,
+            lastName = userIdlessDto.lastName,
+            mail = userIdlessDto.mail
+
         };
 
         await _usersService.CreateAsync(newUser);
@@ -91,18 +87,12 @@ public class UserController : ControllerBase
     /// <response code="204">If the user was successfully updated.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserModel>> UpdateUser(string id, [FromBody] UserModel userModel)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userDto)
     {
-        if (userModel == null)
-        {
-            return BadRequest("User data is required.");
-        }
-        
-        var data = await _usersService.UpdateAsync(id, userModel);
-        if (data == null)
-        {
-            return NotFound($"User with ID {id} not found.");
-        }
+        if (userDto == null) return BadRequest("User data is required.");
+
+        var data = await _usersService.UpdateAsync(id, userDto);
+        if (data == null) return NotFound($"User with ID {id} not found.");
 
         return Ok(data);
     }
