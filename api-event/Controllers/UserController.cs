@@ -91,17 +91,22 @@ public class UserController : ControllerBase
     /// <response code="204">If the user was successfully updated.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(string id, [FromQuery] UserModel userModel)
+    public async Task<ActionResult<UserModel>> UpdateUser(string id, [FromBody] UserModel userModel)
     {
-        var existingUser = await _usersService.GetAsync(id);
-        if (existingUser == null)
+        if (userModel == null)
         {
-            return NotFound(new { Message = "User not found." });
+            return BadRequest("User data is required.");
+        }
+        
+        var data = await _usersService.UpdateAsync(id, userModel);
+        if (data == null)
+        {
+            return NotFound($"User with ID {id} not found.");
         }
 
-        await _usersService.UpdateAsync(id, userModel);
-        return NoContent();
+        return Ok(data);
     }
+
 
     /// <summary>
     /// Deletes a user by their unique identifier.

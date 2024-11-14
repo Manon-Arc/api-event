@@ -32,8 +32,13 @@ public class UsersService
     public async Task CreateAsync(UserModel newUserModel) =>
         await _usersCollection.InsertOneAsync(newUserModel);
 
-    public async Task UpdateAsync(string id, UserModel updatedUser) =>
-        await _usersCollection.ReplaceOneAsync(x => x.Id == id, updatedUser);
+
+    public async Task<bool> UpdateAsync(string id, UserModel updatedUser)
+    {
+        var result = await _usersCollection.ReplaceOneAsync(x => x.Id == id, updatedUser);
+        return result.MatchedCount > 0; // Returns true if a document was matched (and thus replaced)
+    }
+
 
     public async Task RemoveAsync(string id) =>
         await _usersCollection.DeleteOneAsync(x => x.Id == id);
