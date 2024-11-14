@@ -17,5 +17,5 @@ public class TicketDto
 
     public string eventId { get; set; } = null!;
 
-    public string expireDate { get; set; } = null!;
+    public string? expireDate { get; set; }
 }

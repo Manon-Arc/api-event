@@ -1,4 +1,5 @@
-﻿using api_event.Models;
+﻿using System.Text.RegularExpressions;
+using api_event.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -23,20 +24,32 @@ public class TicketsService
 
     public async Task<List<TicketDto>> GetAsync()
     {
-        return await _ticketsCollection.Find(_ => true).ToListAsync();
+        var result = await _ticketsCollection.Find(_ => true).ToListAsync();
+        return result.ToList();
     }
 
     public async Task<TicketDto?> GetAsync(string id)
     {
-        return await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        var result = await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        return result;
     }
 
-    public async Task CreateAsync(TicketDto newTicketDto)
+    public async Task<TicketDto?> CreateAsync(TicketDto newTicketDto)
     {
-        await _ticketsCollection.InsertOneAsync(newTicketDto);
+       try
+       {
+            await _ticketsCollection.InsertOneAsync(newTicketDto);
+            var insertedTicket = await _ticketsCollection.Find(x => x.Id == newTicketDto.Id).FirstOrDefaultAsync();
+            return insertedTicket;
+       }
+       catch (Exception ex)
+       {
+            Console.WriteLine($"An error occurred while inserting: {ex.Message}");
+            return null;
+       } 
     }
 
-    public async Task UpdateAsync(string id, TicketIdlessDto ticketIdlessDto)
+    public async Task<TicketDto?> UpdateAsync(string id, TicketIdlessDto ticketIdlessDto)
     {
         var ticketDto = new TicketDto
         {
@@ -47,11 +60,27 @@ public class TicketsService
             officeId = ticketIdlessDto.officeId
         };
 
-        await _ticketsCollection.ReplaceOneAsync(x => x.Id == id, ticketDto);
+        var result = await _ticketsCollection.ReplaceOneAsync(x => x.Id == id, ticketDto);
+                if (result.MatchedCount > 0) // A matching document was found
+        {
+            return await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+        return null;
     }
 
-    public async Task RemoveAsync(string id)
+    public async Task<bool> RemoveAsync(string id)
     {
-        await _ticketsCollection.DeleteOneAsync(x => x.Id == id);
+        var result = await _ticketsCollection.DeleteOneAsync(x => x.Id == id);
+        return result.DeletedCount > 0;
+    }
+    
+    public bool IsValid24DigitHex(string id)
+    {
+        var idRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        if (string.IsNullOrWhiteSpace(id))
+            return false;
+
+        return idRegex.IsMatch(id);
     }
 }

@@ -63,7 +63,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="409">If the email is already in use.</response>
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostUser([FromQuery] UserIdlessDto userIdlessDto)
+    public async Task<IActionResult> PostUser([FromBody] UserIdlessDto userIdlessDto)
     {
         if (!usersService.IsEmailValid(userIdlessDto.mail))
             return BadRequest(new { Message = "Invalid email address format." });
@@ -92,7 +92,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userIdlessDto)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromBody] UserIdlessDto userDtoData)
     {
         var updatedUser = await usersService.UpdateAsync(id, userIdlessDto);
         if (updatedUser == null) return NotFound($"User with ID {id} not found.");
