@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +41,10 @@ public class CredentialController : ControllerBase
             return BadRequest("Username and password are required.");
         }
 
+        // Endpoint pour enregistrer un nouvel utilisateur
+        [HttpPost("register")]
+        
+        public async Task<IActionResult> Register([FromQuery] CredentialsPostDto _credential)
         await _credentialService.RegisterAsync(credential);
         return Ok("Utilisateur enregistré avec succès");
     }

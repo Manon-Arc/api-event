@@ -29,7 +29,7 @@ namespace api_event.Services
         }
 
         // Enregistrement d'un utilisateur avec ses credentials
-        public async Task RegisterAsync(CredentialsModel _credentials)
+        public async Task RegisterAsync(CredentialsPostDto _credentials)
         {
 
             var user = new UserModel
