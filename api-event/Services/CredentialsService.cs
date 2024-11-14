@@ -10,37 +10,22 @@ namespace api_event.Services;
 public class CredentialsService
 {
     private readonly IMongoCollection<CredentialsDto> _credentialsCollection;
-    private readonly JwtSettings _jwtSettings;
     private readonly UsersService _usersService;
-
-    public CredentialsService(IOptions<DbSettings> dbSettings, UsersService usersService,
-        IOptions<JwtSettings> jwtSettings)
+    public readonly JwtSettings _jwtSettings;
+    public readonly IConfiguration config;
+    
+    public CredentialsService(IOptions<DbSettings> dbSettings, UsersService usersService, IOptions<JwtSettings> jwtSettings, IConfiguration config)
     {
-        private readonly IMongoCollection<CredentialsModel> _credentialsCollection;
-        private readonly UsersService _usersService;
-        private readonly JwtSettings _jwtSettings;
+        var mongoClient = new MongoClient(
+            dbSettings.Value.ConnectionString);
         
-        private IConfiguration _config;
+        var mongoDatabase = mongoClient.GetDatabase(
+            dbSettings.Value.DatabaseName);
         
-        public CredentialsService(IOptions<EventprojDBSettings> dbSettings, UsersService usersService, IOptions<JwtSettings> jwtSettings, IConfiguration config)
-        {
-            var mongoClient = new MongoClient(
-                dbSettings.Value.ConnectionString);
-            
-            var mongoDatabase = mongoClient.GetDatabase(
-                dbSettings.Value.DatabaseName);
-            
-            _credentialsCollection = mongoDatabase.GetCollection<CredentialsModel>(dbSettings.Value.CredentialsCollectionName);
-            _usersService = usersService;
-            _jwtSettings = jwtSettings.Value;
-            _config = config;
-        }
-        
-
-        _credentialsCollection =
-            mongoDatabase.GetCollection<CredentialsDto>(dbSettings.Value.CredentialsCollectionName);
+        _credentialsCollection = mongoDatabase.GetCollection<CredentialsDto>(dbSettings.Value.CredentialsCollectionName);
         _usersService = usersService;
         _jwtSettings = jwtSettings.Value;
+        this.config = config;
     }
 
     // Enregistrement d'un utilisateur avec ses credentials
@@ -66,7 +51,7 @@ public class CredentialsService
         var storedCredential = await _credentialsCollection.Find(c => c.mail == credentials.mail).FirstOrDefaultAsync();
         if (storedCredential == null || !BCrypt.Net.BCrypt.Verify(credentials.password, storedCredential.password)) return null; // Credentials invalides
     
-        return storedCredential.UserId;
+        return storedCredential.userId;
         
     }
 }
