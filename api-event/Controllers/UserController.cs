@@ -64,11 +64,11 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostUser([FromQuery] UserIdlessDto userIdlessDto)
     {
-        if (!_usersService.IsEmailValid(userIdlessDto.mail))
+        if (!_usersService.IsEmailValid(userIdlessDto.mail)){
             return BadRequest(new { Message = "Invalid email address format." });
         }
         
-        var existingUser = await _usersService.GetByEmailAsync(userDto.Mail);
+        var existingUser = await _usersService.GetByEmailAsync(userIdlessDto.mail);
         if (existingUser != null)
         {
             return Conflict(new { Message = "Email is already in use." });
