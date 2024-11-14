@@ -8,8 +8,8 @@ namespace api_event.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly PermissionService _permissionService;
     private readonly UsersService _usersService;
+    private readonly PermissionService _permissionService;
 
     public UserController(UsersService usersService, PermissionService permissionService)
     {
@@ -22,12 +22,25 @@ public class UserController : ControllerBase
     /// </summary>
     /// <remarks>This endpoint returns a list of all users in the system.</remarks>
     /// <returns>A list of <see cref="UserModel"/> objects.</returns>
-    /// <response code="200">Returns the list of users.</response>
+    /// <response code="200">Returns the list of users.</response>/// <response code="500">If there was an error retrieving the events.</response>
+    /// <response code="500">If there was an error retrieving the events.</response>
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
-        var data = await _usersService.GetAsync();
-        return Ok(data);
+        try
+        {
+            var data = await _usersService.GetAsync();
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new { Message = "An error occurred while retrieving events." });
+        }
     }
 
     /// <summary>
@@ -80,10 +93,10 @@ public class UserController : ControllerBase
             mail = userIdlessDto.mail
 
         };
-        
+
         await _usersService.CreateAsync(newUser);
         await _permissionService.CreateAsync(newUser.Id);
-        
+
         return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
     }
 
@@ -111,7 +124,6 @@ public class UserController : ControllerBase
         return Ok(updatedUser); // Return the updated user
     }
 
-
     /// <summary>
     /// Deletes a user by their unique identifier.
     /// </summary>
@@ -121,12 +133,13 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
-        var isDeleted = await _usersService.RemoveAsync(id);
-        
-        if (!isDeleted)
+        var existingUser = await _usersService.GetAsync(id);
+        if (existingUser == null)
         {
             return NotFound(new { Message = "User not found." });
         }
+
+        await _usersService.RemoveAsync(id);
         return NoContent();
     }
 }
