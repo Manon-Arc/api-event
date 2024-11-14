@@ -106,7 +106,7 @@ public class TicketOfficeController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
+    public async Task<IActionResult> UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
         if (ticketOffice == null || !ModelState.IsValid)
         {

@@ -102,7 +102,7 @@ public class TicketController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
+    public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
     {
         if (ticket == null)
         {

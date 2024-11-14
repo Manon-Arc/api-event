@@ -142,7 +142,7 @@ public class EventController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void PutEvent(string id, [FromQuery] EventIdlessDto eventDtoData)
+    public async Task<IActionResult> PutEvent(string id, [FromQuery] EventIdlessDto eventDtoData)
     {
         if (eventDtoData == null)
         {
