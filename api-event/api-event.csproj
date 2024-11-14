@@ -30,7 +30,6 @@
         <Folder Include="Models\Credentials\"/>
         <Folder Include="Models\EventGroup\"/>
         <Folder Include="Models\Event\"/>
-        <Folder Include="Models\LinkEventToGroup\"/>
         <Folder Include="Models\Ticket\"/>
         <Folder Include="Models\User\"/>
     </ItemGroup>

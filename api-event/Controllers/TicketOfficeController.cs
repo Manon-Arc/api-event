@@ -6,50 +6,40 @@ namespace api_event.Controllers;
 
 [Route("/[controller]")]
 [ApiController]
-public class TicketOfficeController : ControllerBase
+public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : ControllerBase
 {
-    private readonly TicketOfficeService _ticketsOfficeServiceService;
-
-    public TicketOfficeController(TicketOfficeService ticketsOfficeService)
-    {
-        _ticketsOfficeServiceService = ticketsOfficeService;
-    }
-
     /// <summary>
-    /// Retrieves all ticket offices.
+    ///     Retrieves all ticket offices.
     /// </summary>
     /// <remarks>
-    /// This endpoint returns a list of all ticket offices.
+    ///     This endpoint returns a list of all ticket offices.
     /// </remarks>
-    /// <returns>A list of <see cref="TicketOfficeModel"/> objects.</returns>
+    /// <returns>A list of <see cref="TicketOfficeDto" /> objects.</returns>
     /// <response code="200">Returns the list of ticket offices.</response>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TicketOfficeDto>>> GetTicketOffices()
     {
-        var data = await _ticketsOfficeServiceService.GetAsync();
+        var data = await ticketsOfficeService.GetAsync();
         return Ok(data);
     }
 
     /// <summary>
-    /// Retrieves a specific ticket office by its unique identifier.
+    ///     Retrieves a specific ticket office by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the ticket office.</param>
-    /// <returns>The <see cref="TicketOfficeModel"/> matching the given ID.</returns>
+    /// <returns>The <see cref="TicketOfficeDto" /> matching the given ID.</returns>
     /// <response code="200">Returns the ticket office with the specified ID.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<TicketOfficeDto>> GetTicketOffice(string id)
     {
-        var data = await _ticketsOfficeServiceService.GetAsync(id);
-        if (data == null)
-        {
-            return NotFound();
-        }
+        var data = await ticketsOfficeService.GetAsync(id);
+        if (data == null) return NotFound();
         return Ok(data);
     }
 
     /// <summary>
-    /// Creates a new ticket office.
+    ///     Creates a new ticket office.
     /// </summary>
     /// <param name="ticketOffice">The ticket office data to create.</param>
     /// <returns>The newly created ticket office.</returns>
@@ -58,10 +48,7 @@ public class TicketOfficeController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostTicketOffice([FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
-        if (ticketOffice == null || !ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var newTicketOffice = new TicketOfficeDto
         {
@@ -74,12 +61,12 @@ public class TicketOfficeController : ControllerBase
             ticketCount = ticketOffice.ticketCount
         };
 
-        await _ticketsOfficeServiceService.CreateAsync(newTicketOffice);
+        await ticketsOfficeService.CreateAsync(newTicketOffice);
         return CreatedAtAction(nameof(GetTicketOffice), new { id = newTicketOffice.Id }, newTicketOffice);
     }
 
     /// <summary>
-    /// Deletes a ticket office by its unique identifier.
+    ///     Deletes a ticket office by its unique identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the ticket office to delete.</param>
     /// <response code="204">If the ticket office was successfully deleted.</response>
@@ -87,18 +74,15 @@ public class TicketOfficeController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTicketOffice(string id)
     {
-        var ticketOfficeExists = await _ticketsOfficeServiceService.GetAsync(id);
-        if (ticketOfficeExists == null)
-        {
-            return NotFound();
-        }
+        var ticketOfficeExists = await ticketsOfficeService.GetAsync(id);
+        if (ticketOfficeExists == null) return NotFound();
 
-        await _ticketsOfficeServiceService.RemoveAsync(id);
+        await ticketsOfficeService.RemoveAsync(id);
         return NoContent();
     }
 
     /// <summary>
-    /// Updates an existing ticket office with new data.
+    ///     Updates an existing ticket office with new data.
     /// </summary>
     /// <param name="id">The unique identifier of the ticket office to update.</param>
     /// <param name="ticketOffice">The updated ticket office data.</param>
@@ -108,18 +92,12 @@ public class TicketOfficeController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
-        if (ticketOffice == null || !ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var ticketOfficeExists = await _ticketsOfficeServiceService.GetAsync(id);
-        if (ticketOfficeExists == null)
-        {
-            return NotFound();
-        }
+        var ticketOfficeExists = await ticketsOfficeService.GetAsync(id);
+        if (ticketOfficeExists == null) return NotFound();
 
-        await _ticketsOfficeServiceService.UpdateAsync(id, ticketOffice);
+        await ticketsOfficeService.UpdateAsync(id, ticketOffice);
         return NoContent();
     }
 }
