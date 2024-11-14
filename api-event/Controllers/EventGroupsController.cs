@@ -61,10 +61,6 @@ public class EventGroupsController : ControllerBase
     public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents(string id)
     {
         var data = await _linkEventToGroupService.GetEventGroupsByGroup(id);
-        if (data == null)
-        {
-            return NotFound();
-        }
         return Ok(data);
     }
 
@@ -78,10 +74,6 @@ public class EventGroupsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EventDto>> PostEventGroups([FromQuery] EventGroupsIdlessDto eventIdlessDto)
     {
-        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.name))
-        {
-            return BadRequest("Event group name is required.");
-        }
         var newEventGroup = new EventGroupsDto
         {
             name = eventIdlessDto.name
@@ -129,19 +121,19 @@ public class EventGroupsController : ControllerBase
     /// Removes an event link from a specified event group.
     /// </summary>
     /// <param name="id">The unique identifier of the event group.</param>
-    /// <param name="linkId">The unique identifier of the event link to remove.</param>
+    /// <param name="eventId">The unique identifier of the event link to remove.</param>
     /// <response code="204">If the event link was successfully removed.</response>
     /// <response code="404">If the event link or event group is not found.</response>
-    [HttpDelete("{id}/events/{linkId}")]
-    public async Task<IActionResult> DeleteLinkEventGroup(string id, string linkId)
+    [HttpDelete("{id}/events/{eventId}")]
+    public async Task<IActionResult> DeleteLinkEventGroup(string id, string eventId)
     {
-        var linkExists = await _linkEventToGroupService.GetEventGroupsByEvent(linkId);
-        if (linkExists == null)
+        var linkExist = await _linkEventToGroupService.GetLinkEventGroupsByEventAndGroup(eventId, id);
+        if (linkExist == null)
         {
             return NotFound("The link does not exist.");
         }
-
-        await _linkEventToGroupService.RemoveAsync(linkId);
+        
+        await _linkEventToGroupService.RemoveAsync(linkExist.Id);
         return NoContent();
     }
 
@@ -156,11 +148,6 @@ public class EventGroupsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEventGroup(string id, [FromQuery] EventGroupsIdlessDto eventGroup)
     {
-        if (eventGroup == null)
-        {
-            return BadRequest("Event group data is required.");
-        }
-
         var groupExists = await _eventGroupsService.GetAsync(id);
         if (groupExists == null)
         {
