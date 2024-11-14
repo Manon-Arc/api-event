@@ -1,5 +1,6 @@
 using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -18,6 +19,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// ///
     /// <response code="500">If there was an error retrieving the events.</response>
     /// <response code="500">If there was an error retrieving the events.</response>
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
