@@ -18,11 +18,14 @@ public class EventController : ControllerBase
     }
 
     /// <summary>
-    ///     Get all events register
+    /// Retrieves all registered events.
     /// </summary>
     /// <remarks>
+    /// This endpoint returns a list of all events currently registered in the system.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>A list of <see cref="EventModel"/> objects.</returns>
+    /// <response code="200">Returns the list of events.</response>
+    /// <response code="500">If there was an error retrieving the events.</response>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
     {
@@ -31,47 +34,70 @@ public class EventController : ControllerBase
     }
 
     /// <summary>
-    ///     Get event which have identifier entered
+    /// Retrieves a specific event by its unique identifier.
     /// </summary>
+    /// <param name="id">The unique identifier of the event.</param>
     /// <remarks>
+    /// Provide the event ID to retrieve its details.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>The <see cref="EventModel"/> matching the given ID.</returns>
+    /// <response code="200">Returns the event with the specified ID.</response>
+    /// <response code="404">If no event is found with the specified ID.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<EventModel>> GetEvent(string id)
     {
         var data = await _eventsService.GetAsync(id);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
-
     /// <summary>
-    ///     Get groups to which the event belongs
+    /// Retrieves all groups associated with a specific event.
     /// </summary>
+    /// <param name="id">The unique identifier of the event.</param>
     /// <remarks>
+    /// Use this endpoint to retrieve a list of groups to which a given event belongs.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>A list of groups associated with the event.</returns>
+    /// <response code="200">Returns the list of groups associated with the event.</response>
+    /// <response code="404">If no groups are found for the specified event.</response>
     [HttpGet("{id}/groups")]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetGroups(string id)
     {
         var data = await _linkEventToGroupService.GetEventGroupsByEvent(id);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
     /// <summary>
-    ///     Creates a new event
+    /// Creates a new event.
     /// </summary>
+    /// <param name="eventDto">The event data to create the event.</param>
     /// <remarks>
-    ///     Sample request:
+    /// Sample request:
+    /// 
     ///     POST /Event
     ///     {
-    ///     "name": "Event Name"
+    ///         "name": "Event Name"
     ///     }
     /// </remarks>
-    /// <param name="eventDto">The event data to create the event</param>
-    /// <returns>The newly created event</returns>
+    /// <returns>The newly created event.</returns>
+    /// <response code="201">Returns the newly created event.</response>
+    /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult<EventModel>> PostEvent([FromQuery] CreateEventDto eventDto)
+    public async Task<ActionResult<EventModel>> PostEvent([FromBody] CreateEventDto eventDto)
     {
+        if (eventDto == null || string.IsNullOrEmpty(eventDto.Name))
+        {
+            return BadRequest("Event data is required.");
+        }
+
         var newEvent = new EventModel
         {
             Name = eventDto.Name,
@@ -79,31 +105,57 @@ public class EventController : ControllerBase
         };
 
         await _eventsService.CreateAsync(newEvent);
-        return Ok(newEvent);
+        return CreatedAtAction(nameof(GetEvent), new { id = newEvent.Id }, newEvent);
     }
 
     /// <summary>
-    ///     Delete one event by its identifier
+    /// Deletes a specific event by its unique identifier.
     /// </summary>
+    /// <param name="id">The unique identifier of the event to delete.</param>
     /// <remarks>
+    /// Use this endpoint to delete an event by providing its ID.
     /// </remarks>
-    /// <returns></returns>
+    /// <response code="204">If the event was successfully deleted.</response>
+    /// <response code="404">If no event is found with the specified ID.</response>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteEvent(string id)
     {
+        var eventExists = await _eventsService.GetAsync(id);
+        if (eventExists == null)
+        {
+            return NotFound();
+        }
+
         await _eventsService.RemoveAsync(id);
         return NoContent();
     }
 
     /// <summary>
-    ///     Put new value to replace current event data
+    /// Updates an existing event with new data.
     /// </summary>
+    /// <param name="id">The unique identifier of the event to update.</param>
+    /// <param name="eventModelData">The updated event data.</param>
     /// <remarks>
+    /// Provide the event ID and updated data to replace the existing event information.
     /// </remarks>
-    /// <returns></returns>
+    /// <response code="204">If the event was successfully updated.</response>
+    /// <response code="400">If the input data is invalid.</response>
+    /// <response code="404">If no event is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void PutEvent(string id, [FromQuery] EventModel eventModelData)
+    public async Task<IActionResult> PutEvent(string id, [FromBody] EventModel eventModelData)
     {
+        if (eventModelData == null)
+        {
+            return BadRequest("Event data is required.");
+        }
+
+        var eventExists = await _eventsService.GetAsync(id);
+        if (eventExists == null)
+        {
+            return NotFound();
+        }
+
         await _eventsService.UpdateAsync(id, eventModelData);
+        return NoContent();
     }
 }

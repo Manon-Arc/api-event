@@ -10,20 +10,21 @@ public class EventGroupsController : ControllerBase
 {
     private readonly EventGroupsService _eventGroupsService;
     private readonly LinkEventToGroupService _linkEventToGroupService;
-    
+
     public EventGroupsController(EventGroupsService eventGroupsService, LinkEventToGroupService linkEventToGroupService)
     {
         _eventGroupsService = eventGroupsService;
         _linkEventToGroupService = linkEventToGroupService;
     }
 
-
     /// <summary>
-    ///     Get all events group
+    /// Retrieves all event groups.
     /// </summary>
     /// <remarks>
+    /// This endpoint returns a list of all event groups.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>A list of <see cref="EventGroupsModel"/> objects.</returns>
+    /// <response code="200">Returns the list of event groups.</response>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventGroupsModel>>> GetEventGroups()
     {
@@ -32,97 +33,148 @@ public class EventGroupsController : ControllerBase
     }
 
     /// <summary>
-    ///     Get events group by its identifier
+    /// Retrieves a specific event group by its unique identifier.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group.</param>
+    /// <returns>The <see cref="EventGroupsModel"/> matching the given ID.</returns>
+    /// <response code="200">Returns the event group with the specified ID.</response>
+    /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<EventGroupsModel>> GetEventGroup(string id)
     {
         var data = await _eventGroupsService.GetAsync(id);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
-
     /// <summary>
-    ///     Get the list of event identifiers present in the event group which has the specified identifier
+    /// Retrieves the list of events associated with a specified event group.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group.</param>
+    /// <returns>A list of events in the specified group.</returns>
+    /// <response code="200">Returns the list of events in the specified group.</response>
+    /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}/events")]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents(string id)
     {
         var data = await _linkEventToGroupService.GetEventGroupsByGroup(id);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
     /// <summary>
-    ///     Create new events group
+    /// Creates a new event group.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="eventDto">The event group data to create.</param>
+    /// <returns>The newly created event group.</returns>
+    /// <response code="201">Returns the newly created event group.</response>
+    /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult<EventModel>> PostEventGroups([FromQuery] CreateEventGroupsDto eventDto)
+    public async Task<ActionResult<EventGroupsModel>> PostEventGroups([FromBody] CreateEventGroupsDto eventDto)
     {
-        var newEvent = new EventGroupsModel
+        if (eventDto == null || string.IsNullOrEmpty(eventDto.Name))
+        {
+            return BadRequest("Event group name is required.");
+        }
+
+        var newEventGroup = new EventGroupsModel
         {
             Name = eventDto.Name
         };
 
-        await _eventGroupsService.CreateAsync(newEvent);
-        return Ok(newEvent);
+        await _eventGroupsService.CreateAsync(newEventGroup);
+        return CreatedAtAction(nameof(GetEventGroup), new { id = newEventGroup.Id }, newEventGroup);
     }
 
     /// <summary>
-    ///     Add event to group with identifier
+    /// Links an event to a specified event group.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group.</param>
+    /// <param name="eventId">The unique identifier of the event to link.</param>
+    /// <response code="204">If the event was successfully linked to the group.</response>
+    /// <response code="404">If the event or event group is not found.</response>
     [HttpPost("{id}/events/{eventId}")]
-    public async void PostLinkEventGroup(string id, string eventId)
+    public async Task<IActionResult> PostLinkEventGroup(string id, string eventId)
     {
+        var groupExists = await _eventGroupsService.GetAsync(id);
+        var eventExists = await _linkEventToGroupService.GetEventGroupsByGroup(eventId);
+        if (groupExists == null || eventExists == null)
+        {
+            return NotFound("Either the event or the event group does not exist.");
+        }
+
         await _linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
+        return NoContent();
     }
 
     /// <summary>
-    ///     Delete an event group by its identifier
+    /// Deletes an event group by its unique identifier.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group to delete.</param>
+    /// <response code="204">If the event group was successfully deleted.</response>
+    /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpDelete("{id}")]
-    public async void DeleteEventGroup(string id)
+    public async Task<IActionResult> DeleteEventGroup(string id)
     {
+        var groupExists = await _eventGroupsService.GetAsync(id);
+        if (groupExists == null)
+        {
+            return NotFound();
+        }
+
         await _eventGroupsService.RemoveAsync(id);
+        return NoContent();
     }
 
-
     /// <summary>
-    ///     Remove event from group with identifier
+    /// Removes an event link from a specified event group.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group.</param>
+    /// <param name="linkId">The unique identifier of the event link to remove.</param>
+    /// <response code="204">If the event link was successfully removed.</response>
+    /// <response code="404">If the event link or event group is not found.</response>
     [HttpDelete("{id}/events/{linkId}")]
-    public async void DeleteLinkEventGroup(string id, string linkId)
+    public async Task<IActionResult> DeleteLinkEventGroup(string id, string linkId)
     {
+        var linkExists = await _linkEventToGroupService.GetEventGroupsByEvent(linkId);
+        if (linkExists == null)
+        {
+            return NotFound("The link does not exist.");
+        }
+
         await _linkEventToGroupService.RemoveAsync(linkId);
+        return NoContent();
     }
 
-
     /// <summary>
-    ///     Update events group data
+    /// Updates an existing event group with new data.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the event group to update.</param>
+    /// <param name="eventGroup">The updated event group data.</param>
+    /// <response code="204">If the event group was successfully updated.</response>
+    /// <response code="400">If the input data is invalid.</response>
+    /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void UpdateEventGroup(string id, [FromQuery] EventGroupsModel eventGroup)
+    public async Task<IActionResult> UpdateEventGroup(string id, [FromBody] EventGroupsModel eventGroup)
     {
+        if (eventGroup == null)
+        {
+            return BadRequest("Event group data is required.");
+        }
+
+        var groupExists = await _eventGroupsService.GetAsync(id);
+        if (groupExists == null)
+        {
+            return NotFound();
+        }
+
         await _eventGroupsService.UpdateAsync(id, eventGroup);
+        return NoContent();
     }
 }

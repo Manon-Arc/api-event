@@ -16,11 +16,13 @@ public class TicketController : ControllerBase
     }
 
     /// <summary>
-    ///     Get all tickets
+    /// Retrieves all tickets.
     /// </summary>
     /// <remarks>
+    /// This endpoint returns a list of all tickets.
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>A list of <see cref="TicketModel"/> objects.</returns>
+    /// <response code="200">Returns the list of tickets.</response>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TicketModel>>> GetTickets()
     {
@@ -29,27 +31,38 @@ public class TicketController : ControllerBase
     }
 
     /// <summary>
-    ///     Get ticket by identifier
+    /// Retrieves a specific ticket by its unique identifier.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the ticket.</param>
+    /// <returns>The <see cref="TicketModel"/> matching the given ID.</returns>
+    /// <response code="200">Returns the ticket with the specified ID.</response>
+    /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<TicketModel>> GetTicket(string id)
     {
         var data = await _ticketsService.GetAsync(id);
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
     /// <summary>
-    ///     Create new ticket
+    /// Creates a new ticket.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="ticketDto">The ticket data to create.</param>
+    /// <returns>The newly created ticket.</returns>
+    /// <response code="201">Returns the newly created ticket.</response>
+    /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult> PostTicket([FromQuery] CreateTicketDto ticketDto)
+    public async Task<ActionResult<TicketModel>> PostTicket([FromBody] CreateTicketDto ticketDto)
     {
+        if (ticketDto == null || string.IsNullOrEmpty(ticketDto.UserID) || string.IsNullOrEmpty(ticketDto.EventID))
+        {
+            return BadRequest("UserID and EventID are required.");
+        }
+
         var newTicket = new TicketModel
         {
             UserID = ticketDto.UserID,
@@ -58,30 +71,51 @@ public class TicketController : ControllerBase
         };
 
         await _ticketsService.CreateAsync(newTicket);
-        return Ok(newTicket);
+        return CreatedAtAction(nameof(GetTicket), new { id = newTicket.Id }, newTicket);
     }
 
     /// <summary>
-    ///     Delete ticket by its identifier
+    /// Deletes a ticket by its unique identifier.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the ticket to delete.</param>
+    /// <response code="204">If the ticket was successfully deleted.</response>
+    /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpDelete("{id}")]
-    public async void DeleteTicket(string id)
+    public async Task<IActionResult> DeleteTicket(string id)
     {
+        var ticketExists = await _ticketsService.GetAsync(id);
+        if (ticketExists == null)
+        {
+            return NotFound();
+        }
+
         await _ticketsService.RemoveAsync(id);
+        return NoContent();
     }
 
     /// <summary>
-    ///     Replace data of ticker which have identifier
+    /// Updates an existing ticket with new data.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <returns></returns>
+    /// <param name="id">The unique identifier of the ticket to update.</param>
+    /// <param name="ticket">The updated ticket data.</param>
+    /// <response code="204">If the ticket was successfully updated.</response>
+    /// <response code="400">If the input data is invalid.</response>
+    /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async void UpdateTicket(string id, [FromQuery] TicketModel ticket)
+    public async Task<IActionResult> UpdateTicket(string id, [FromBody] TicketModel ticket)
     {
+        if (ticket == null)
+        {
+            return BadRequest("Ticket data is required.");
+        }
+
+        var ticketExists = await _ticketsService.GetAsync(id);
+        if (ticketExists == null)
+        {
+            return NotFound();
+        }
+
         await _ticketsService.UpdateAsync(id, ticket);
+        return NoContent();
     }
 }
