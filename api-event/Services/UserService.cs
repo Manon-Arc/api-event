@@ -34,12 +34,12 @@ public class UsersService
         return result;
     }
 
-    public async Task<UserDto?> CreateAsync(UserDto newUserModel)
+    public async Task<UserDto?> CreateAsync(UserDto newUserDto)
     {
         try
         {
-            await _usersCollection.InsertOneAsync(newUserModel);
-            var insertedUser = await _usersCollection.Find(x => x.Id == newUserModel.Id).FirstOrDefaultAsync();
+            await _usersCollection.InsertOneAsync(newUserDto);
+            var insertedUser = await _usersCollection.Find(x => x.Id == newUserDto.Id).FirstOrDefaultAsync();
             return insertedUser;
         }
         catch (Exception ex)
@@ -75,7 +75,7 @@ public class UsersService
         return result.DeletedCount > 0;
     }
 
-    public async Task<UserDto> GetByEmailAsync(string email)
+    public async Task<UserDto?> GetByEmailAsync(string email)
     {
         return await _usersCollection.Find(u => u.mail == email).FirstOrDefaultAsync();
     }

@@ -12,5 +12,5 @@ public class EventDto
     public string name { get; set; } = null!;
 
     [BsonRepresentation(BsonType.Document)]
-    public DateTimeOffset date { get; set; }
+    public DateTimeOffset? date { get; set; }
 }

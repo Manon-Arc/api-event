@@ -108,14 +108,14 @@ public class UserController : ControllerBase
     /// <response code="204">Return the newly updated user.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userDto)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userDtoData)
     {
-        if (userDto == null)
+        if (userDtoData == null)
         {
             return BadRequest("User data is required.");
         }
 
-        var updatedUser = await _usersService.UpdateAsync(id, userDto);
+        var updatedUser = await _usersService.UpdateAsync(id, userDtoData);
         if (updatedUser == null)
         {
             return NotFound($"User with ID {id} not found.");

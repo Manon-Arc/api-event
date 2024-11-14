@@ -57,6 +57,11 @@ public class EventController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<EventDto>> GetEvent(string id)
     {
+        if ( string.IsNullOrEmpty(id))
+        {
+
+            return BadRequest(new { Message = "Event ID is required." });
+        }
         var data = await _eventsService.GetAsync(id);
         if (data == null)
         {
@@ -78,6 +83,10 @@ public class EventController : ControllerBase
     [HttpGet("{id}/groups")]
     public async Task<ActionResult<IEnumerable<EventDto>>> GetGroups(string id)
     {
+        if ( string.IsNullOrEmpty(id))
+        {
+            return BadRequest(new { Message = "Event ID is required." });
+        }
         var data = await _linkEventToGroupService.GetEventGroupsByEvent(id);
         if (data == null)
         {
@@ -102,9 +111,9 @@ public class EventController : ControllerBase
     /// <response code="201">Returns the newly created event.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult<EventDto>> PostEvent([FromQuery] EventIdlessDto eventIdlessDto)
+    public async Task<ActionResult<EventDto>> PostEvent([FromBody] EventIdlessDto eventIdlessDto)
     {
-        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.name))
+        if (string.IsNullOrEmpty(eventIdlessDto.name))
         {
             return BadRequest("Event data is required.");
         }
@@ -153,20 +162,18 @@ public class EventController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutEvent(string id, [FromQuery] EventIdlessDto eventDtoData)
+    public async Task<ActionResult<EventDto>> UpdateEvent(string id, [FromBody] EventIdlessDto eventDtoData)
     {
         if (eventDtoData == null)
         {
             return BadRequest("Event data is required.");
         }
 
-        var eventExists = await _eventsService.GetAsync(id);
-        if (eventExists == null)
+        var updatedEvent = await _eventsService.UpdateAsync(id, eventDtoData);
+        if (updatedEvent == null)
         {
-            return NotFound("Event not found.");
+            return NotFound($"Event with ID {id} not found.");
         }
-
-        await _eventsService.UpdateAsync(id, eventDtoData);
-        return NoContent();
+        return Ok(updatedEvent);
     }
 }

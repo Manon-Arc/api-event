@@ -23,29 +23,52 @@ public class EventsService
 
     public async Task<List<EventDto>> GetAsync()
     {
-        return await _eventsCollection.Find(_ => true).ToListAsync();
+        var result = await _eventsCollection.Find(_ => true).ToListAsync();
+        return result;
     }
 
     public async Task<EventDto?> GetAsync(string id)
     {
-        return await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        var result = await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        return result;
     }
 
-    public async Task CreateAsync(EventDto newEventDto)
+    public async Task<EventDto?> CreateAsync(EventDto newEventDto)
     {
-        await _eventsCollection.InsertOneAsync(newEventDto);
+        try
+        {
+            await _eventsCollection.InsertOneAsync(newEventDto);
+            var insertedEvent = await _eventsCollection.Find(x => x.Id == newEventDto.Id).FirstOrDefaultAsync();
+            return insertedEvent;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while inserting: {ex.Message}");
+            return null;
+        }
     }
 
-    public async Task UpdateAsync(string id, EventIdlessDto eventIdlessDto)
+    public async Task<EventDto?> UpdateAsync(string id, EventIdlessDto eventIdlessDto)
     {
-        var eventDto = await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-        eventDto.name = eventIdlessDto.name;
+        var eventDto = new EventDto
+        {
+            Id = id,
+            name = eventIdlessDto.name,
+            date = eventIdlessDto.date
+        };
+        var result = await _eventsCollection.ReplaceOneAsync(x => x.Id == id, eventDto);
 
-        await _eventsCollection.ReplaceOneAsync(x => x.Id == id, eventDto);
+        if (result.ModifiedCount > 1)
+        {
+            return await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        return null;
     }
 
-    public async Task RemoveAsync(string id)
+    public async Task<bool> RemoveAsync(string id)
     {
-        await _eventsCollection.DeleteOneAsync(x => x.Id == id);
+        var result = await _eventsCollection.DeleteOneAsync(x => x.Id == id);
+        return result.DeletedCount > 0;
     }
 }
