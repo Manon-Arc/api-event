@@ -1,28 +1,23 @@
 using System.Reflection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api_event;
-using api_event.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Ajouter la configuration des services directement dans le builder
-builder.Services.Configure<EventprojDBSettings>(
+builder.Services.Configure<DbSettings>(
     builder.Configuration.GetSection("EventprojDB"));
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection("Jwt"));
 
-builder.Services.AddScoped<UsersService>();
-builder.Services.AddScoped<CredentialsService>();
-builder.Services.AddScoped<TicketsService>();
-builder.Services.AddScoped<EventsService>();
-builder.Services.AddScoped<EventGroupsService>();
-builder.Services.AddScoped<LinkEventToGroupService>();
-builder.Services.AddScoped<TicketOfficeService>();
-builder.Services.AddScoped<PermissionService>();
+
+var assembly = Assembly.GetExecutingAssembly();
+var services = assembly.GetTypes().Where(type => type.IsClass && type.Namespace == "api_event.Services").ToList();
+foreach (var service in services) builder.Services.AddScoped(service);
 
 // Ajouter Swagger pour la documentation de l'API
 builder.Services.AddEndpointsApiExplorer();
@@ -67,20 +62,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Ajouter les contrôleurs
 builder.Services.AddControllers();
 
-// Créer l'application
 var app = builder.Build();
 
 // Ajouter les middlewares d'authentification et d'autorisation
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1");
-    });
+    app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ticket API v1"); });
 }
 
 app.UseHttpsRedirection();
@@ -104,8 +94,5 @@ app.Use(async (context, next) =>
     }
 });
 
-// Ajouter le mapping des contrôleurs
 app.MapControllers();
-
-// Lancer l'application
 app.Run();

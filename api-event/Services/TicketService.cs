@@ -1,5 +1,4 @@
-﻿using api_event;
-using api_event.Models;
+﻿using api_event.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -7,10 +6,10 @@ namespace api_event.Services;
 
 public class TicketsService
 {
-    private readonly IMongoCollection<TicketModel> _ticketsCollection;
+    private readonly IMongoCollection<TicketDto> _ticketsCollection;
 
     public TicketsService(
-        IOptions<EventprojDBSettings> eventprojDatabaseSettings)
+        IOptions<DbSettings> eventprojDatabaseSettings)
     {
         var mongoClient = new MongoClient(
             eventprojDatabaseSettings.Value.ConnectionString);
@@ -18,22 +17,41 @@ public class TicketsService
         var mongoDatabase = mongoClient.GetDatabase(
             eventprojDatabaseSettings.Value.DatabaseName);
 
-        _ticketsCollection = mongoDatabase.GetCollection<TicketModel>(
+        _ticketsCollection = mongoDatabase.GetCollection<TicketDto>(
             eventprojDatabaseSettings.Value.TicketsCollectionName);
     }
 
-    public async Task<List<TicketModel>> GetAsync() =>
-        await _ticketsCollection.Find(_ => true).ToListAsync();
+    public async Task<List<TicketDto>> GetAsync()
+    {
+        return await _ticketsCollection.Find(_ => true).ToListAsync();
+    }
 
-    public async Task<TicketModel?> GetAsync(string id) =>
-        await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<TicketDto?> GetAsync(string id)
+    {
+        return await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    }
 
-    public async Task CreateAsync(TicketModel newTicketModel) =>
-        await _ticketsCollection.InsertOneAsync(newTicketModel);
+    public async Task CreateAsync(TicketDto newTicketDto)
+    {
+        await _ticketsCollection.InsertOneAsync(newTicketDto);
+    }
 
-    public async Task UpdateAsync(string id, TicketModel updatedBook) =>
-        await _ticketsCollection.ReplaceOneAsync(x => x.Id == id, updatedBook);
+    public async Task UpdateAsync(string id, TicketIdlessDto ticketIdlessDto)
+    {
+        var ticketDto = new TicketDto
+        {
+            Id = id,
+            expireDate = ticketIdlessDto.expireDate,
+            eventId = ticketIdlessDto.eventId,
+            userId = ticketIdlessDto.userId,
+            officeId = ticketIdlessDto.officeId
+        };
 
-    public async Task RemoveAsync(string id) =>
+        await _ticketsCollection.ReplaceOneAsync(x => x.Id == id, ticketDto);
+    }
+
+    public async Task RemoveAsync(string id)
+    {
         await _ticketsCollection.DeleteOneAsync(x => x.Id == id);
+    }
 }

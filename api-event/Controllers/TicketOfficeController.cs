@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +24,7 @@ public class TicketOfficeController : ControllerBase
     /// <returns>A list of <see cref="TicketOfficeModel"/> objects.</returns>
     /// <response code="200">Returns the list of ticket offices.</response>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TicketOfficeModel>>> GetTicketOffices()
+    public async Task<ActionResult<IEnumerable<TicketOfficeDto>>> GetTicketOffices()
     {
         var data = await _ticketsOfficeServiceService.GetAsync();
         return Ok(data);
@@ -38,7 +38,7 @@ public class TicketOfficeController : ControllerBase
     /// <response code="200">Returns the ticket office with the specified ID.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpGet("{id}")]
-    public async Task<ActionResult<TicketOfficeModel>> GetTicketOffice(string id)
+    public async Task<ActionResult<TicketOfficeDto>> GetTicketOffice(string id)
     {
         var data = await _ticketsOfficeServiceService.GetAsync(id);
         if (data == null)
@@ -56,15 +56,26 @@ public class TicketOfficeController : ControllerBase
     /// <response code="201">Returns the newly created ticket office.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<IActionResult> PostTicketOffice([FromBody] TicketOfficeModel ticketOffice)
+    public async Task<IActionResult> PostTicketOffice([FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
         if (ticketOffice == null || !ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        await _ticketsOfficeServiceService.CreateAsync(ticketOffice);
-        return CreatedAtAction(nameof(GetTicketOffice), new { id = ticketOffice.Id }, ticketOffice);
+        var newTicketOffice = new TicketOfficeDto
+        {
+            name = ticketOffice.name,
+            eventId = ticketOffice.eventId,
+            price = ticketOffice.price,
+            closeDate = ticketOffice.closeDate,
+            eventDate = ticketOffice.eventDate,
+            openDate = ticketOffice.openDate,
+            ticketCount = ticketOffice.ticketCount
+        };
+
+        await _ticketsOfficeServiceService.CreateAsync(newTicketOffice);
+        return CreatedAtAction(nameof(GetTicketOffice), new { id = newTicketOffice.Id }, newTicketOffice);
     }
 
     /// <summary>
@@ -95,7 +106,7 @@ public class TicketOfficeController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTicketOffice(string id, [FromBody] TicketOfficeModel ticketOffice)
+    public async void UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
         if (ticketOffice == null || !ModelState.IsValid)
         {

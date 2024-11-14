@@ -26,7 +26,7 @@ public class EventGroupsController : ControllerBase
     /// <returns>A list of <see cref="EventGroupsModel"/> objects.</returns>
     /// <response code="200">Returns the list of event groups.</response>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<EventGroupsModel>>> GetEventGroups()
+    public async Task<ActionResult<IEnumerable<EventGroupsDto>>> GetEventGroups()
     {
         var data = await _eventGroupsService.GetAsync();
         return Ok(data);
@@ -40,7 +40,7 @@ public class EventGroupsController : ControllerBase
     /// <response code="200">Returns the event group with the specified ID.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}")]
-    public async Task<ActionResult<EventGroupsModel>> GetEventGroup(string id)
+    public async Task<ActionResult<EventGroupsDto>> GetEventGroup(string id)
     {
         var data = await _eventGroupsService.GetAsync(id);
         if (data == null)
@@ -58,7 +58,7 @@ public class EventGroupsController : ControllerBase
     /// <response code="200">Returns the list of events in the specified group.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}/events")]
-    public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents(string id)
+    public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents(string id)
     {
         var data = await _linkEventToGroupService.GetEventGroupsByGroup(id);
         if (data == null)
@@ -76,16 +76,15 @@ public class EventGroupsController : ControllerBase
     /// <response code="201">Returns the newly created event group.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult<EventGroupsModel>> PostEventGroups([FromBody] CreateEventGroupsDto eventDto)
+    public async Task<ActionResult<EventDto>> PostEventGroups([FromQuery] EventGroupsIdlessDto eventIdlessDto)
     {
-        if (eventDto == null || string.IsNullOrEmpty(eventDto.Name))
+        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.name))
         {
             return BadRequest("Event group name is required.");
         }
-
-        var newEventGroup = new EventGroupsModel
+        var newEventGroup = new EventGroupsDto
         {
-            Name = eventDto.Name
+            name = eventIdlessDto.name
         };
 
         await _eventGroupsService.CreateAsync(newEventGroup);
@@ -102,15 +101,7 @@ public class EventGroupsController : ControllerBase
     [HttpPost("{id}/events/{eventId}")]
     public async Task<IActionResult> PostLinkEventGroup(string id, string eventId)
     {
-        var groupExists = await _eventGroupsService.GetAsync(id);
-        var eventExists = await _linkEventToGroupService.GetEventGroupsByGroup(eventId);
-        if (groupExists == null || eventExists == null)
-        {
-            return NotFound("Either the event or the event group does not exist.");
-        }
-
-        await _linkEventToGroupService.CreateAsync(new LinkEventToGroupModel { eventId = eventId, eventGroupId = id });
-        return NoContent();
+        await _linkEventToGroupService.CreateAsync(new LinkEventToGroupDto { eventId = eventId, eventGroupId = id });
     }
 
     /// <summary>
@@ -161,7 +152,7 @@ public class EventGroupsController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEventGroup(string id, [FromBody] EventGroupsModel eventGroup)
+    public async void UpdateEventGroup(string id, [FromQuery] EventGroupsIdlessDto eventGroup)
     {
         if (eventGroup == null)
         {

@@ -3,11 +3,12 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace api_event.Models;
 
-public class EventGroupsModel
+public class LinkEventToGroupDto
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; }
+    public string Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string eventGroupId { get; set; }
+    public string eventId { get; set; }
 }

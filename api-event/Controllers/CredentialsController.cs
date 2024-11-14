@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,13 +34,12 @@ public class CredentialController : ControllerBase
     /// <response code="200">If the user was successfully registered.</response>
     /// <response code="400">If the provided data is invalid.</response>
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] CredentialsModel credential)
+    public async Task<IActionResult> Register([FromQuery] CredentialsIdlessDto credential)
     {
-        if (credential == null || string.IsNullOrEmpty(credential.Mail) || string.IsNullOrEmpty(credential.Password))
+        if (credential == null || string.IsNullOrEmpty(credential.mail) || string.IsNullOrEmpty(credential.password))
         {
             return BadRequest("Username and password are required.");
         }
-
         await _credentialService.RegisterAsync(credential);
         return Ok("Utilisateur enregistré avec succès");
     }
@@ -66,9 +65,9 @@ public class CredentialController : ControllerBase
     /// <response code="200">Returns a JWT token upon successful authentication.</response>
     /// <response code="401">If the credentials are invalid.</response>
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] CredentialsModel credentials)
+    public async Task<IActionResult> Login([FromQuery] CredentialsDto credentials)
     {
-        if (credentials == null || string.IsNullOrEmpty(credentials.Mail) || string.IsNullOrEmpty(credentials.Password))
+        if (credentials == null || string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
         {
             return BadRequest("Username and password are required.");
         }

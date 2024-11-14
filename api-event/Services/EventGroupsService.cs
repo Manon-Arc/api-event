@@ -6,35 +6,40 @@ namespace api_event.Services;
 
 public class EventGroupsService
 {
-    private readonly IMongoCollection<EventGroupsModel> _eventGroupsCollection;
+    private readonly IMongoCollection<EventGroupsDto> _eventGroupsCollection;
 
-    public EventGroupsService(IOptions<EventprojDBSettings> eventprojDBSettings)
+    public EventGroupsService(IOptions<DbSettings> eventprojDBSettings)
     {
         var mongoClient = new MongoClient(eventprojDBSettings.Value.ConnectionString);
 
         var mongoDatabase = mongoClient.GetDatabase(eventprojDBSettings.Value.DatabaseName);
 
         _eventGroupsCollection =
-            mongoDatabase.GetCollection<EventGroupsModel>(eventprojDBSettings.Value.EventGroupsCollectionName);
+            mongoDatabase.GetCollection<EventGroupsDto>(eventprojDBSettings.Value.EventGroupsCollectionName);
     }
 
-    public async Task<List<EventGroupsModel>> GetAsync()
+    public async Task<List<EventGroupsDto>> GetAsync()
     {
         return await _eventGroupsCollection.Find(_ => true).ToListAsync();
     }
 
-    public async Task<EventGroupsModel?> GetAsync(string id)
+    public async Task<EventGroupsDto?> GetAsync(string id)
     {
         return await _eventGroupsCollection.Find(e => e.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(EventGroupsModel eventGroups)
+    public async Task CreateAsync(EventGroupsDto eventGroups)
     {
         await _eventGroupsCollection.InsertOneAsync(eventGroups);
     }
 
-    public async Task UpdateAsync(string id, EventGroupsModel eventGroups)
+    public async Task UpdateAsync(string id, EventGroupsIdlessDto eventIdlessGroups)
     {
+        var eventGroups = new EventGroupsDto
+        {
+            Id = id,
+            name = eventIdlessGroups.name
+        };
         await _eventGroupsCollection.ReplaceOneAsync(e => e.Id == id, eventGroups);
     }
 
