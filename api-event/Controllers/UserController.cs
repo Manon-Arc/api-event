@@ -40,6 +40,11 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUser(string id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest(new { Message = "User ID is required." });
+        }
+
         var data = await _usersService.GetAsync(id);
         if (data == null)
         {
@@ -61,10 +66,13 @@ public class UserController : ControllerBase
     {
         if (!_usersService.IsEmailValid(userIdlessDto.mail))
             return BadRequest(new { Message = "Invalid email address format." });
-
-        var existingUser = await _usersService.GetByEmailAsync(userIdlessDto.mail);
-        if (existingUser != null) return Conflict(new { Message = "Email is already in use." });
-
+        }
+        
+        var existingUser = await _usersService.GetByEmailAsync(userDto.Mail);
+        if (existingUser != null)
+        {
+            return Conflict(new { Message = "Email is already in use." });
+        }
         var newUser = new UserDto
         {
             firstName = userIdlessDto.firstName,
@@ -72,10 +80,10 @@ public class UserController : ControllerBase
             mail = userIdlessDto.mail
 
         };
-
+        
         await _usersService.CreateAsync(newUser);
         await _permissionService.CreateAsync(newUser.Id);
-
+        
         return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
     }
 
@@ -84,17 +92,23 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the user to update.</param>
     /// <param name="userModel">The updated user data.</param>
-    /// <response code="204">If the user was successfully updated.</response>
+    /// <response code="204">Return the newly updated user.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
     public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userDto)
     {
-        if (userDto == null) return BadRequest("User data is required.");
+        if (userDto == null)
+        {
+            return BadRequest("User data is required.");
+        }
 
-        var data = await _usersService.UpdateAsync(id, userDto);
-        if (data == null) return NotFound($"User with ID {id} not found.");
+        var updatedUser = await _usersService.UpdateAsync(id, userDto);
+        if (updatedUser == null)
+        {
+            return NotFound($"User with ID {id} not found.");
+        }
 
-        return Ok(data);
+        return Ok(updatedUser); // Return the updated user
     }
 
 
@@ -107,13 +121,12 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
-        var existingUser = await _usersService.GetAsync(id);
-        if (existingUser == null)
+        var isDeleted = await _usersService.RemoveAsync(id);
+        
+        if (!isDeleted)
         {
             return NotFound(new { Message = "User not found." });
         }
-
-        await _usersService.RemoveAsync(id);
         return NoContent();
     }
 }

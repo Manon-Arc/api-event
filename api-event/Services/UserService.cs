@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using api_event.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -24,21 +24,32 @@ public class UsersService
 
     public async Task<List<UserDto>> GetAsync()
     {
-        return await _usersCollection.Find(_ => true).ToListAsync();
+        var result = await _usersCollection.Find(_ => true).ToListAsync(); 
+        return result.ToList();
     }
 
     public async Task<UserDto?> GetAsync(string id)
     {
-        return await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        var result = await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        return result;
     }
 
-    public async Task CreateAsync(UserDto newUserDto)
+    public async Task<UserDto?> CreateAsync(UserDto newUserModel)
     {
-        await _usersCollection.InsertOneAsync(newUserDto);
+        try
+        {
+            await _usersCollection.InsertOneAsync(newUserModel);
+            var insertedUser = await _usersCollection.Find(x => x.Id == newUserModel.Id).FirstOrDefaultAsync();
+            return insertedUser;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while inserting: {ex.Message}");
+            return null;
+        }
     }
 
-
-    public async Task<bool> UpdateAsync(string id, UserIdlessDto userIdlessDto)
+    public async Task<UserDto?> UpdateAsync(string id, UserIdlessDto userIdlessDto)
     {
         var userDto = new UserDto
         {
@@ -49,13 +60,19 @@ public class UsersService
         };
 
         var result = await _usersCollection.ReplaceOneAsync(x => x.Id == id, userDto);
-        return result.MatchedCount > 0; // Returns true if a document was matched (and thus replaced)
+        
+        if (result.MatchedCount > 0) // A matching document was found
+        {
+            return await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+        return null;
     }
 
 
-    public async Task RemoveAsync(string id)
+    public async Task<bool> RemoveAsync(string id)
     {
-        await _usersCollection.DeleteOneAsync(x => x.Id == id);
+        var result = await _usersCollection.DeleteOneAsync(x => x.Id == id);
+        return result.DeletedCount > 0;
     }
 
     public async Task<UserDto> GetByEmailAsync(string email)
