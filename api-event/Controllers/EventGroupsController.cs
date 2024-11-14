@@ -84,7 +84,7 @@ public class EventGroupsController : ControllerBase
         }
         var newEvent = new EventGroupsDto
         {
-            Name = eventIdlessDto.Name
+            name = eventIdlessDto.name
         };
 
         await _eventGroupsService.CreateAsync(newEventGroup);

@@ -14,7 +14,7 @@ public class CredentialsService
     private readonly JwtSettings _jwtSettings;
     private readonly UsersService _usersService;
 
-    public CredentialsService(IOptions<EventprojDBSettings> dbSettings, UsersService usersService,
+    public CredentialsService(IOptions<DbSettings> dbSettings, UsersService usersService,
         IOptions<JwtSettings> jwtSettings)
     {
         var mongoClient = new MongoClient(
@@ -34,27 +34,27 @@ public class CredentialsService
     {
         var user = new UserDto
         {
-            mail = credentials.Mail
+            mail = credentials.mail
         };
 
         // Création de l'utilisateur
         await _usersService.CreateAsync(user);
 
         // Hash du mot de passe et création des credentials
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(credentials.Password);
-        var newCredentials = new CredentialsDto { Mail = user.mail, Password = hashedPassword, UserId = user.Id! };
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(credentials.password);
+        var newCredentials = new CredentialsDto { mail = user.mail, password = hashedPassword, userId = user.Id! };
         await _credentialsCollection.InsertOneAsync(newCredentials);
     }
 
     // Login avec mail et mot de passe
     public async Task<string?> LoginAsync(CredentialsDto credentials)
     {
-        var storedCredential = await _credentialsCollection.Find(c => c.Mail == credentials.Mail).FirstOrDefaultAsync();
+        var storedCredential = await _credentialsCollection.Find(c => c.mail == credentials.mail).FirstOrDefaultAsync();
         if (storedCredential == null ||
-            !BCrypt.Net.BCrypt.Verify(credentials.Password,
-                storedCredential.Password)) return null; // Credentials invalides
+            !BCrypt.Net.BCrypt.Verify(credentials.password,
+                storedCredential.password)) return null; // Credentials invalides
 
-        var user = await _usersService.GetAsync(storedCredential.UserId);
+        var user = await _usersService.GetAsync(storedCredential.userId);
         return GenerateJwtToken(user!);
     }
 

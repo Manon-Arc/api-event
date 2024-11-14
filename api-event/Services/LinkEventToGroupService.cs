@@ -8,7 +8,7 @@ public class LinkEventToGroupService
 {
     private readonly IMongoCollection<LinkEventToGroupDto> _linkEventGroupCollection;
 
-    public LinkEventToGroupService(IOptions<EventprojDBSettings> eventprojDBSettings)
+    public LinkEventToGroupService(IOptions<DbSettings> eventprojDBSettings)
     {
         var mongoClient = new MongoClient(eventprojDBSettings.Value.ConnectionString);
 

@@ -9,7 +9,7 @@ public class PermissionService
     private readonly IMongoCollection<PermissionDto> _permissionCollection;
 
     public PermissionService(
-        IOptions<EventprojDBSettings> eventprojDatabaseSettings)
+        IOptions<DbSettings> eventprojDatabaseSettings)
     {
         var mongoClient = new MongoClient(
             eventprojDatabaseSettings.Value.ConnectionString);
@@ -25,8 +25,8 @@ public class PermissionService
     {
         var newPermission = new PermissionDto
         {
-            PermissionId = new Guid(),
-            UserId = newUserId
+            permissionId = new Guid(),
+            userId = newUserId
         };
 
         await _permissionCollection.InsertOneAsync(newPermission);

@@ -9,7 +9,7 @@ public class TicketOfficeService
     private readonly IMongoCollection<TicketOfficeDto> _ticketOfficesCollection;
 
     public TicketOfficeService(
-        IOptions<EventprojDBSettings> eventprojDatabaseSettings)
+        IOptions<DbSettings> eventprojDatabaseSettings)
     {
         var mongoClient = new MongoClient(
             eventprojDatabaseSettings.Value.ConnectionString);

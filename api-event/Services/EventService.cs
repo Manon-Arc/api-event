@@ -9,7 +9,7 @@ public class EventsService
     private readonly IMongoCollection<EventDto> _eventsCollection;
 
     public EventsService(
-        IOptions<EventprojDBSettings> eventprojDatabaseSettings)
+        IOptions<DbSettings> eventprojDatabaseSettings)
     {
         var mongoClient = new MongoClient(
             eventprojDatabaseSettings.Value.ConnectionString);
@@ -39,7 +39,7 @@ public class EventsService
     public async Task UpdateAsync(string id, EventIdlessDto eventIdlessDto)
     {
         var eventDto = await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-        eventDto.Name = eventIdlessDto.Name;
+        eventDto.name = eventIdlessDto.name;
 
         await _eventsCollection.ReplaceOneAsync(x => x.Id == id, eventDto);
     }

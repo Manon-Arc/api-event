@@ -100,8 +100,8 @@ public class EventController : ControllerBase
 
         var newEvent = new EventDto
         {
-            Name = eventIdlessDto.Name,
-            Date = DateTimeOffset.UtcNow // Example, you can modify this as necessary
+            name = eventIdlessDto.name,
+            date = DateTimeOffset.UtcNow // Example, you can modify this as necessary
         };
 
         await _eventsService.CreateAsync(newEvent);

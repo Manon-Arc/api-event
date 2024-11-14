@@ -2,5 +2,5 @@
 
 public class EventIdlessDto
 {
-    public string Name { get; set; } = null!;
+    public string name { get; set; } = null!;
 }

@@ -9,8 +9,8 @@ public class EventDto
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string name { get; set; } = null!;
 
     [BsonRepresentation(BsonType.Document)]
-    public DateTimeOffset Date { get; set; }
+    public DateTimeOffset date { get; set; }
 }

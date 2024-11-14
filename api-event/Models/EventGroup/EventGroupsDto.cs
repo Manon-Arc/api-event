@@ -9,5 +9,5 @@ public class EventGroupsDto
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string name { get; set; } = null!;
 }

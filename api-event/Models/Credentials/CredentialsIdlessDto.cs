@@ -2,6 +2,6 @@
 
 public class CredentialsIdlessDto
 {
-    public string Mail { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string mail { get; set; } = string.Empty;
+    public string password { get; set; } = string.Empty;
 }

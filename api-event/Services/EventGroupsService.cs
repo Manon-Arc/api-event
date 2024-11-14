@@ -8,7 +8,7 @@ public class EventGroupsService
 {
     private readonly IMongoCollection<EventGroupsDto> _eventGroupsCollection;
 
-    public EventGroupsService(IOptions<EventprojDBSettings> eventprojDBSettings)
+    public EventGroupsService(IOptions<DbSettings> eventprojDBSettings)
     {
         var mongoClient = new MongoClient(eventprojDBSettings.Value.ConnectionString);
 
@@ -38,7 +38,7 @@ public class EventGroupsService
         var eventGroups = new EventGroupsDto
         {
             Id = id,
-            Name = eventIdlessGroups.Name
+            name = eventIdlessGroups.name
         };
         await _eventGroupsCollection.ReplaceOneAsync(e => e.Id == id, eventGroups);
     }

@@ -1,6 +1,6 @@
 namespace api_event;
 
-public class EventprojDBSettings
+public class DbSettings
 {
     public string ConnectionString { get; set; } = null!;
 
@@ -17,9 +17,8 @@ public class EventprojDBSettings
     public string EventGroupsCollectionName { get; set; } = null!;
 
     public string LinkEventGroupCollectionName { get; set; } = null!;
-    
-    public string TicketOfficeCollectionName { get; set; } = null!;
-    
-    public string PermissionCollectionName { get; set; } = null!;
 
+    public string TicketOfficeCollectionName { get; set; } = null!;
+
+    public string PermissionCollectionName { get; set; } = null!;
 }

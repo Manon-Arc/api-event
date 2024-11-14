@@ -10,7 +10,7 @@ public class UsersService
     private readonly IMongoCollection<UserDto> _usersCollection;
 
     public UsersService(
-        IOptions<EventprojDBSettings> eventprojDatabaseSettings)
+        IOptions<DbSettings> eventprojDatabaseSettings)
     {
         var mongoClient = new MongoClient(
             eventprojDatabaseSettings.Value.ConnectionString);
@@ -40,15 +40,14 @@ public class UsersService
 
     public async Task<bool> UpdateAsync(string id, UserIdlessDto userIdlessDto)
     {
-
-        UserDto userDto = new UserDto()
+        var userDto = new UserDto
         {
             Id = id,
             mail = userIdlessDto.mail,
             lastName = userIdlessDto.lastName,
             firstName = userIdlessDto.firstName
         };
-        
+
         var result = await _usersCollection.ReplaceOneAsync(x => x.Id == id, userDto);
         return result.MatchedCount > 0; // Returns true if a document was matched (and thus replaced)
     }
