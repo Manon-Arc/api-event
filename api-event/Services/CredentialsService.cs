@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using api_event.Models;
 using Microsoft.Extensions.Options;
@@ -11,22 +10,22 @@ namespace api_event.Services;
 public class CredentialsService
 {
     private readonly IMongoCollection<CredentialsDto> _credentialsCollection;
-    private readonly JwtSettings _jwtSettings;
     private readonly UsersService _usersService;
-
-    public CredentialsService(IOptions<DbSettings> dbSettings, UsersService usersService,
-        IOptions<JwtSettings> jwtSettings)
+    public readonly JwtSettings _jwtSettings;
+    public readonly IConfiguration config;
+    
+    public CredentialsService(IOptions<DbSettings> dbSettings, UsersService usersService, IOptions<JwtSettings> jwtSettings, IConfiguration config)
     {
         var mongoClient = new MongoClient(
             dbSettings.Value.ConnectionString);
-
+        
         var mongoDatabase = mongoClient.GetDatabase(
             dbSettings.Value.DatabaseName);
-
-        _credentialsCollection =
-            mongoDatabase.GetCollection<CredentialsDto>(dbSettings.Value.CredentialsCollectionName);
+        
+        _credentialsCollection = mongoDatabase.GetCollection<CredentialsDto>(dbSettings.Value.CredentialsCollectionName);
         _usersService = usersService;
         _jwtSettings = jwtSettings.Value;
+        this.config = config;
     }
 
     // Enregistrement d'un utilisateur avec ses credentials
@@ -50,31 +49,9 @@ public class CredentialsService
     public async Task<string?> LoginAsync(CredentialsIdlessDto credentials)
     {
         var storedCredential = await _credentialsCollection.Find(c => c.mail == credentials.mail).FirstOrDefaultAsync();
-        if (storedCredential == null ||
-            !BCrypt.Net.BCrypt.Verify(credentials.password,
-                storedCredential.password)) return null; // Credentials invalides
-
-        var user = await _usersService.GetAsync(storedCredential.userId);
-        return GenerateJwtToken(user!);
-    }
-
-    // Génération du token JWT
-    private string GenerateJwtToken(UserDto userDto)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, userDto.Id),
-                new Claim(ClaimTypes.Email, userDto.mail)
-            }),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-            SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        if (storedCredential == null || !BCrypt.Net.BCrypt.Verify(credentials.password, storedCredential.password)) return null; // Credentials invalides
+    
+        return storedCredential.userId;
+        
     }
 }

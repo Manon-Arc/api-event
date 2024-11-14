@@ -1,6 +1,11 @@
 using api_event.Models;
 using api_event.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace api_event.Controllers;
 
@@ -27,8 +32,6 @@ public class CredentialController(CredentialsService credentialService) : Contro
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromQuery] CredentialsIdlessDto credential)
     {
-        if (string.IsNullOrEmpty(credential.mail) || string.IsNullOrEmpty(credential.password))
-            return BadRequest("Username and password are required.");
         await credentialService.RegisterAsync(credential);
         return Ok("Utilisateur enregistré avec succès");
     }
@@ -51,14 +54,33 @@ public class CredentialController(CredentialsService credentialService) : Contro
     /// <response code="200">Returns a JWT token upon successful authentication.</response>
     /// <response code="401">If the credentials are invalid.</response>
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromQuery] CredentialsIdlessDto credentials)
+    public async Task<IActionResult> Login([FromBody] CredentialsIdlessDto credentials)
     {
-        if (string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
-            return BadRequest("Username and password are required.");
+        var user = await credentialService.LoginAsync(credentials);
+        if (user == null)
+        {
+            return Unauthorized("Identifiants invalides");
+        }
+        
+        
+        var publicKey = credentialService.config["Jwt:PrivateKey"];
+        var rsa = new RSACryptoServiceProvider(4096);
+        rsa.ImportFromPem(publicKey.ToCharArray());
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user),
+                // Add more claims as needed
+            }),
+            SigningCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256),
+            Issuer = credentialService.config["Jwt:Issuer"], // Add this line
+            Audience = credentialService.config["Jwt:Audience"] 
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
 
-        var token = await credentialService.LoginAsync(credentials);
-        if (token == null) return Unauthorized("Identifiants invalides");
+        var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return Ok(new { Token = token });
+        return Ok(tokenHandler.WriteToken(token));
     }
 }
