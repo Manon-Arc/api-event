@@ -29,8 +29,19 @@ public class EventController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<EventModel>>> GetEvents()
     {
-        var data = await _eventsService.GetAsync();
-        return Ok(data);
+        try
+        {
+            var data = await _eventsService.GetAsync();
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+        catch
+        {
+            return StatusCode(500, new { Message = "An error occurred while retrieving events." });
+        }
     }
 
     /// <summary>
@@ -49,7 +60,7 @@ public class EventController : ControllerBase
         var data = await _eventsService.GetAsync(id);
         if (data == null)
         {
-            return NotFound();
+            return NotFound(new { Message = "Event not found." });
         }
         return Ok(data);
     }
@@ -70,7 +81,7 @@ public class EventController : ControllerBase
         var data = await _linkEventToGroupService.GetEventGroupsByEvent(id);
         if (data == null)
         {
-            return NotFound();
+            return NotFound(new { Message = "Event group not found." });
         }
         return Ok(data);
     }
@@ -123,7 +134,7 @@ public class EventController : ControllerBase
         var eventExists = await _eventsService.GetAsync(id);
         if (eventExists == null)
         {
-            return NotFound();
+            return NotFound(new { Message = "Event not found." });
         }
 
         await _eventsService.RemoveAsync(id);
@@ -152,7 +163,7 @@ public class EventController : ControllerBase
         var eventExists = await _eventsService.GetAsync(id);
         if (eventExists == null)
         {
-            return NotFound();
+            return NotFound("Event not found.");
         }
 
         await _eventsService.UpdateAsync(id, eventModelData);

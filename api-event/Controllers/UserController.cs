@@ -22,12 +22,25 @@ public class UserController : ControllerBase
     /// </summary>
     /// <remarks>This endpoint returns a list of all users in the system.</remarks>
     /// <returns>A list of <see cref="UserModel"/> objects.</returns>
-    /// <response code="200">Returns the list of users.</response>
+    /// <response code="200">Returns the list of users.</response>/// <response code="500">If there was an error retrieving the events.</response>
+    /// <response code="500">If there was an error retrieving the events.</response>
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
     {
-        var data = await _usersService.GetAsync();
-        return Ok(data);
+        try
+        {
+            var data = await _usersService.GetAsync();
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new { Message = "An error occurred while retrieving events." });
+        }
     }
 
     /// <summary>
@@ -91,15 +104,19 @@ public class UserController : ControllerBase
     /// <response code="204">If the user was successfully updated.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(string id, [FromQuery] UserModel userModel)
+    public async Task<IActionResult> PutUser(string id, [FromQuery] UserModel userModelData)
     {
+        if (userModelData == null)
+        {
+            return BadRequest("User data is required.");
+        }
         var existingUser = await _usersService.GetAsync(id);
         if (existingUser == null)
         {
             return NotFound(new { Message = "User not found." });
         }
 
-        await _usersService.UpdateAsync(id, userModel);
+        await _usersService.UpdateAsync(id, userModelData);
         return NoContent();
     }
 
