@@ -6,29 +6,14 @@ namespace api_event.Controllers;
 
 [Route("/[controller]")]
 [ApiController]
-public class TicketController : ControllerBase
+public class TicketController(
+    TicketsService ticketsService,
+    EventsService eventsService,
+    TicketOfficeService ticketOfficeService,
+    UsersService usersService)
+    : ControllerBase
 {
-    private readonly TicketsService _ticketsService;
 
-    public TicketController(TicketsService ticketsService)
-    {
-        _ticketsService = ticketsService;
-    }
-
-    /// <summary>
-    /// Retrieves all tickets.
-    /// </summary>
-    /// <remarks>
-    /// This endpoint returns a list of all tickets.
-    /// </remarks>
-    /// <returns>A list of <see cref="TicketModel"/> objects.</returns>
-    /// <response code="200">Returns the list of tickets.</response>
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TicketDto>>> GetTickets()
-    {
-        var data = await _ticketsService.GetAsync();
-        return Ok(data);
-    }
 
     /// <summary>
     /// Retrieves a specific ticket by its unique identifier.
@@ -40,12 +25,44 @@ public class TicketController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TicketDto>> GetTicket(string id)
     {
-        var data = await _ticketsService.GetAsync(id);
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest(new { Message = "Ticket ID is required." });
+        }
+        var data = await ticketsService.GetAsync(id);
         if (data == null)
         {
             return NotFound();
         }
         return Ok(data);
+    }
+
+    /// <summary>
+    /// Retrieves all tickets.
+    /// </summary>
+    /// <remarks>
+    /// This endpoint returns a list of all tickets.
+    /// </remarks>
+    /// <returns>A list of <see cref="TicketModel"/> objects.</returns>
+    /// <response code="200">Returns the list of tickets.</response>
+    /// <response code="500">If there was an error retrieving the tickets.</response>
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TicketDto>>> GetTickets()
+    {
+        try
+        {
+            var data = await ticketsService.GetAsync();
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new { Message = "An error occurred while retrieving tickets." });
+        }
     }
 
     /// <summary>
@@ -56,21 +73,25 @@ public class TicketController : ControllerBase
     /// <response code="201">Returns the newly created ticket.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
-    public async Task<ActionResult> PostTicket([FromQuery] TicketIdlessDto ticketIdlessDto)
+    public async Task<ActionResult> PostTicket([FromBody] TicketIdlessDto ticketIdlessDto)
     {
-        if (ticketIdlessDto == null)
-        {
-            return BadRequest("UserID and EventID are required.");
-        }
+        var eventDto = await eventsService.GetAsync(ticketIdlessDto.eventId);
+        var officeDto = await ticketOfficeService.GetAsync(ticketIdlessDto.officeId!);
+        var userDto = await usersService.GetAsync(ticketIdlessDto.userId);
+        
+        if (eventDto == null) return NotFound(new { Message = "Event not found." });
+        if (ticketIdlessDto.officeId != null & officeDto == null) return NotFound(new { Message = "Office not found." });
+        if (userDto == null) return NotFound(new { Message = "User not found." });
         
         var newTicket = new TicketDto
         {
             userId = ticketIdlessDto.userId,
+            officeId = ticketIdlessDto.officeId,
             eventId = ticketIdlessDto.eventId,
             expireDate = ticketIdlessDto.expireDate
         };
 
-        await _ticketsService.CreateAsync(newTicket);
+        await ticketsService.CreateAsync(newTicket);
         return CreatedAtAction(nameof(GetTicket), new { id = newTicket.Id }, newTicket);
     }
 
@@ -83,13 +104,13 @@ public class TicketController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTicket(string id)
     {
-        var ticketExists = await _ticketsService.GetAsync(id);
+        var ticketExists = await ticketsService.GetAsync(id);
         if (ticketExists == null)
         {
-            return NotFound();
+            return NotFound(new { Message = "User not found." });
         }
 
-        await _ticketsService.RemoveAsync(id);
+        await ticketsService.RemoveAsync(id);
         return NoContent();
     }
 
@@ -102,20 +123,17 @@ public class TicketController : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
+    public async Task<IActionResult> UpdateTicket(string id, [FromBody] TicketIdlessDto ticketDtoData)
     {
-        if (ticket == null)
-        {
-            return BadRequest("Ticket data is required.");
-        }
+        if (await eventsService.GetAsync(ticketDtoData.eventId) == null) return NotFound(new { Message = "Event not found." });
+        if (ticketDtoData.officeId != null & await ticketOfficeService.GetAsync(ticketDtoData.officeId!) == null) return NotFound(new { Message = "Office not found." });
+        if (await usersService.GetAsync(ticketDtoData.userId) == null) return NotFound(new { Message = "User not found." });
 
-        var ticketExists = await _ticketsService.GetAsync(id);
-        if (ticketExists == null)
+        var updatedTicket = await ticketsService.UpdateAsync(id, ticketDtoData);
+        if (updatedTicket == null)
         {
-            return NotFound();
+            return NotFound($"Ticket with ID {id} not found.");
         }
-
-        await _ticketsService.UpdateAsync(id, ticket);
-        return NoContent();
+        return CreatedAtAction(nameof(GetTicket), new { id = updatedTicket.Id }, updatedTicket);
     }
 }

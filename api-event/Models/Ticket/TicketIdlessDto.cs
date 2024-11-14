@@ -6,5 +6,5 @@ public class TicketIdlessDto
     public string eventId { get; set; } = null!;
 
     public string? officeId { get; set; }
-    public string expireDate { get; set; } = null!;
+    public string? expireDate { get; set; }
 }

@@ -75,7 +75,7 @@ public class UserController : ControllerBase
     /// <response code="400">If the email is invalid.</response>
     /// <response code="409">If the email is already in use.</response>
     [HttpPost]
-    public async Task<IActionResult> PostUser([FromQuery] UserIdlessDto userIdlessDto)
+    public async Task<IActionResult> PostUser([FromBody] UserIdlessDto userIdlessDto)
     {
         if (!_usersService.IsEmailValid(userIdlessDto.mail)){
             return BadRequest(new { Message = "Invalid email address format." });
@@ -91,7 +91,6 @@ public class UserController : ControllerBase
             firstName = userIdlessDto.firstName,
             lastName = userIdlessDto.lastName,
             mail = userIdlessDto.mail
-
         };
 
         await _usersService.CreateAsync(newUser);
@@ -108,7 +107,7 @@ public class UserController : ControllerBase
     /// <response code="204">Return the newly updated user.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userDtoData)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromBody] UserIdlessDto userDtoData)
     {
         if (userDtoData == null)
         {
