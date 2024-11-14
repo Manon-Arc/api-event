@@ -65,9 +65,9 @@ public class CredentialController : ControllerBase
     /// <response code="200">Returns a JWT token upon successful authentication.</response>
     /// <response code="401">If the credentials are invalid.</response>
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromQuery] CredentialsDto credentials)
+    public async Task<IActionResult> Login([FromQuery] CredentialsIdlessDto credentials)
     {
-        if (credentials == null || string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
+        if (string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
         {
             return BadRequest("Username and password are required.");
         }

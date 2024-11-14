@@ -47,7 +47,7 @@ public class CredentialsService
     }
 
     // Login avec mail et mot de passe
-    public async Task<string?> LoginAsync(CredentialsDto credentials)
+    public async Task<string?> LoginAsync(CredentialsIdlessDto credentials)
     {
         var storedCredential = await _credentialsCollection.Find(c => c.mail == credentials.mail).FirstOrDefaultAsync();
         if (storedCredential == null ||
