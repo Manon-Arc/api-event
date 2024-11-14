@@ -36,18 +36,10 @@ public class CredentialController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromQuery] CredentialsIdlessDto credential)
     {
-        if (credential == null || string.IsNullOrEmpty(credential.Mail) || string.IsNullOrEmpty(credential.Password))
+        if (credential == null || string.IsNullOrEmpty(credential.mail) || string.IsNullOrEmpty(credential.password))
         {
             return BadRequest("Username and password are required.");
         }
-        await _credentialService.RegisterAsync(credential);
-        return Ok("Utilisateur enregistré avec succès");
-    }
-
-        // Endpoint pour enregistrer un nouvel utilisateur
-        [HttpPost("register")]
-        
-        public async Task<IActionResult> Register([FromQuery] CredentialsPostDto _credential)
         await _credentialService.RegisterAsync(credential);
         return Ok("Utilisateur enregistré avec succès");
     }
@@ -75,7 +67,7 @@ public class CredentialController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromQuery] CredentialsDto credentials)
     {
-        if (credentials == null || string.IsNullOrEmpty(credentials.Mail) || string.IsNullOrEmpty(credentials.Password))
+        if (credentials == null || string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
         {
             return BadRequest("Username and password are required.");
         }

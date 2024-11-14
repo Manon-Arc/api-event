@@ -58,7 +58,7 @@ public class TicketController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> PostTicket([FromQuery] TicketIdlessDto ticketIdlessDto)
     {
-        if (ticketIdlessDto == null || string.IsNullOrEmpty(ticketIdlessDto.EventID))
+        if (ticketIdlessDto == null)
         {
             return BadRequest("UserID and EventID are required.");
         }

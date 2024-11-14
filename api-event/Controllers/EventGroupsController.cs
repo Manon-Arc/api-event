@@ -78,11 +78,11 @@ public class EventGroupsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EventDto>> PostEventGroups([FromQuery] EventGroupsIdlessDto eventIdlessDto)
     {
-        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.Name))
+        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.name))
         {
             return BadRequest("Event group name is required.");
         }
-        var newEvent = new EventGroupsDto
+        var newEventGroup = new EventGroupsDto
         {
             name = eventIdlessDto.name
         };
@@ -101,7 +101,7 @@ public class EventGroupsController : ControllerBase
     [HttpPost("{id}/events/{eventId}")]
     public async Task<IActionResult> PostLinkEventGroup(string id, string eventId)
     {
-        await linkEventToGroupService.CreateAsync(new LinkEventToGroupDto { eventId = eventId, eventGroupId = id });
+        await _linkEventToGroupService.CreateAsync(new LinkEventToGroupDto { eventId = eventId, eventGroupId = id });
     }
 
     /// <summary>

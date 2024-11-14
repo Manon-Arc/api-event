@@ -93,7 +93,7 @@ public class EventController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EventDto>> PostEvent([FromQuery] EventIdlessDto eventIdlessDto)
     {
-        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.Name))
+        if (eventIdlessDto == null || string.IsNullOrEmpty(eventIdlessDto.name))
         {
             return BadRequest("Event data is required.");
         }

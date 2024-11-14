@@ -42,7 +42,7 @@ public class CredentialsService
 
         // Hash du mot de passe et création des credentials
         var hashedPassword = BCrypt.Net.BCrypt.HashPassword(credentials.password);
-        var newCredentials = new CredentialsDto { mail = user.mail, password = hashedPassword, userId = user.Id! };
+        var newCredentials = new CredentialsDto() { mail = user.mail, password = hashedPassword, userId = user.Id! };
         await _credentialsCollection.InsertOneAsync(newCredentials);
     }
 
