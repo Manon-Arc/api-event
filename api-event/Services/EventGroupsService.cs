@@ -8,14 +8,14 @@ public class EventGroupsService
 {
     private readonly IMongoCollection<EventGroupsDto> _eventGroupsCollection;
 
-    public EventGroupsService(IOptions<DbSettings> eventprojDBSettings)
+    public EventGroupsService(IOptions<DbSettings> eventprojDbSettings)
     {
-        var mongoClient = new MongoClient(eventprojDBSettings.Value.ConnectionString);
+        var mongoClient = new MongoClient(eventprojDbSettings.Value.ConnectionString);
 
-        var mongoDatabase = mongoClient.GetDatabase(eventprojDBSettings.Value.DatabaseName);
+        var mongoDatabase = mongoClient.GetDatabase(eventprojDbSettings.Value.DatabaseName);
 
         _eventGroupsCollection =
-            mongoDatabase.GetCollection<EventGroupsDto>(eventprojDBSettings.Value.EventGroupsCollectionName);
+            mongoDatabase.GetCollection<EventGroupsDto>(eventprojDbSettings.Value.EventGroupsCollectionName);
     }
 
     public async Task<List<EventGroupsDto>> GetAsync()

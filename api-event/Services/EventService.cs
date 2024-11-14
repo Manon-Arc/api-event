@@ -21,7 +21,7 @@ public class EventsService
             eventprojDatabaseSettings.Value.EventsCollectionName);
     }
 
-    public async Task<List<EventDto>> GetAsync()
+    public async Task<List<EventDto>?> GetAsync()
     {
         var result = await _eventsCollection.Find(_ => true).ToListAsync();
         return result;
@@ -30,6 +30,12 @@ public class EventsService
     public async Task<EventDto?> GetAsync(string id)
     {
         var result = await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+        return result;
+    }
+
+    public async Task<List<EventDto>?> GetByGroupIdAsync(string id)
+    {
+        var result = await _eventsCollection.Find(x => x.groupId == id).ToListAsync();
         return result;
     }
 
@@ -54,14 +60,12 @@ public class EventsService
         {
             Id = id,
             name = eventIdlessDto.name,
-            date = eventIdlessDto.date
+            date = eventIdlessDto.date,
+            groupId = eventIdlessDto.groupId
         };
         var result = await _eventsCollection.ReplaceOneAsync(x => x.Id == id, eventDto);
 
-        if (result.ModifiedCount > 1)
-        {
-            return await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-        }
+        if (result.ModifiedCount > 1) return await _eventsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
         return null;
     }

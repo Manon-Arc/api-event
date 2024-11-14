@@ -6,28 +6,19 @@ namespace api_event.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CredentialController : ControllerBase
+public class CredentialController(CredentialsService credentialService) : ControllerBase
 {
-    private readonly CredentialsService _credentialService;
-
-    public CredentialController(CredentialsService credentialService)
-    {
-        _credentialService = credentialService;
-    }
-
     /// <summary>
-    /// Registers a new user with the provided credentials.
+    ///     Registers a new user with the provided credentials.
     /// </summary>
     /// <param name="credential">The user credentials for registration.</param>
     /// <remarks>
-    /// This endpoint registers a new user account. You must provide valid credentials to successfully register.
-    /// 
-    /// Sample request:
-    /// 
+    ///     This endpoint registers a new user account. You must provide valid credentials to successfully register.
+    ///     Sample request:
     ///     POST /Credential/register
     ///     {
-    ///         "email": "test@test.com",
-    ///         "password": "password123"
+    ///     "email": "test@test.com",
+    ///     "password": "password123"
     ///     }
     /// </remarks>
     /// <returns>A success message upon successful registration.</returns>
@@ -36,30 +27,25 @@ public class CredentialController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromQuery] CredentialsIdlessDto credential)
     {
-        if (credential == null || string.IsNullOrEmpty(credential.mail) || string.IsNullOrEmpty(credential.password))
-        {
+        if (string.IsNullOrEmpty(credential.mail) || string.IsNullOrEmpty(credential.password))
             return BadRequest("Username and password are required.");
-        }
-        await _credentialService.RegisterAsync(credential);
+        await credentialService.RegisterAsync(credential);
         return Ok("Utilisateur enregistré avec succès");
     }
 
     /// <summary>
-    /// Logs in a user and returns a JWT token if credentials are valid.
+    ///     Logs in a user and returns a JWT token if credentials are valid.
     /// </summary>
     /// <param name="credentials">The login credentials.</param>
     /// <remarks>
-    /// This endpoint validates the provided credentials and returns a JWT token if they are correct.
-    /// 
-    /// Sample request:
-    /// 
+    ///     This endpoint validates the provided credentials and returns a JWT token if they are correct.
+    ///     Sample request:
     ///     POST /Credential/login
     ///     {
-    ///         "email": "test@test.com",
-    ///         "password": "password123"
+    ///     "email": "test@test.com",
+    ///     "password": "password123"
     ///     }
-    /// 
-    /// Use the token for authorization in subsequent requests.
+    ///     Use the token for authorization in subsequent requests.
     /// </remarks>
     /// <returns>A JWT token if login is successful.</returns>
     /// <response code="200">Returns a JWT token upon successful authentication.</response>
@@ -68,15 +54,10 @@ public class CredentialController : ControllerBase
     public async Task<IActionResult> Login([FromQuery] CredentialsIdlessDto credentials)
     {
         if (string.IsNullOrEmpty(credentials.mail) || string.IsNullOrEmpty(credentials.password))
-        {
             return BadRequest("Username and password are required.");
-        }
 
-        var token = await _credentialService.LoginAsync(credentials);
-        if (token == null)
-        {
-            return Unauthorized("Identifiants invalides");
-        }
+        var token = await credentialService.LoginAsync(credentials);
+        if (token == null) return Unauthorized("Identifiants invalides");
 
         return Ok(new { Token = token });
     }

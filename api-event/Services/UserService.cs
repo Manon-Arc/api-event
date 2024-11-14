@@ -22,10 +22,10 @@ public class UsersService
             eventprojDatabaseSettings.Value.UsersCollectionName);
     }
 
-    public async Task<List<UserDto>> GetAsync()
+    public async Task<List<UserDto>?> GetAsync()
     {
         var result = await _usersCollection.Find(_ => true).ToListAsync(); 
-        return result.ToList();
+        return result;
     }
 
     public async Task<UserDto?> GetAsync(string id)
@@ -82,11 +82,11 @@ public class UsersService
 
     public bool IsEmailValid(string email)
     {
-        var EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         if (string.IsNullOrWhiteSpace(email))
             return false;
 
-        return EmailRegex.IsMatch(email);
+        return emailRegex.IsMatch(email);
     }
 }

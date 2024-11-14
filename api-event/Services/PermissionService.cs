@@ -21,7 +21,7 @@ public class PermissionService
             eventprojDatabaseSettings.Value.PermissionCollectionName);
     }
 
-    public async Task CreateAsync(string? newUserId)
+    public async Task CreateAsync(string newUserId)
     {
         var newPermission = new PermissionDto
         {
