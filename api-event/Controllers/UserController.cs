@@ -94,7 +94,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     [Authorize]
     public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromBody] UserIdlessDto userDtoData)
     {
-        var updatedUser = await usersService.UpdateAsync(id, userIdlessDto);
+        var updatedUser = await usersService.UpdateAsync(id, userDtoData);
         if (updatedUser == null) return NotFound($"User with ID {id} not found.");
 
         return Ok(updatedUser); // Return the updated user

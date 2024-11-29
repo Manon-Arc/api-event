@@ -14,13 +14,6 @@ public class TicketController(
     UsersService usersService)
     : ControllerBase
 {
-    private readonly TicketsService _ticketsService;
-
-    public TicketController(TicketsService ticketsService)
-    {
-        _ticketsService = ticketsService;
-    }
-
     /// <summary>
     ///     Retrieves all tickets.
     /// </summary>
@@ -36,10 +29,7 @@ public class TicketController(
         try
         {
             var data = await ticketsService.GetAsync();
-            if (data == null)
-            {
-                return NotFound();
-            }
+            if (data == null) return NotFound();
             return Ok(data);
         }
         catch (Exception e)
@@ -59,15 +49,9 @@ public class TicketController(
     [Authorize]
     public async Task<ActionResult<TicketDto>> GetTicket(string id)
     {
-        if (string.IsNullOrEmpty(id))
-        {
-            return BadRequest(new { Message = "Ticket ID is required." });
-        }
+        if (string.IsNullOrEmpty(id)) return BadRequest(new { Message = "Ticket ID is required." });
         var data = await ticketsService.GetAsync(id);
-        if (data == null)
-        {
-            return NotFound();
-        }
+        if (data == null) return NotFound();
         return Ok(data);
     }
 
@@ -85,11 +69,12 @@ public class TicketController(
         var eventDto = await eventsService.GetAsync(ticketIdlessDto.eventId);
         var officeDto = await ticketOfficeService.GetAsync(ticketIdlessDto.officeId!);
         var userDto = await usersService.GetAsync(ticketIdlessDto.userId);
-        
+
         if (eventDto == null) return NotFound(new { Message = "Event not found." });
-        if (ticketIdlessDto.officeId != null & officeDto == null) return NotFound(new { Message = "Office not found." });
+        if ((ticketIdlessDto.officeId != null) & (officeDto == null))
+            return NotFound(new { Message = "Office not found." });
         if (userDto == null) return NotFound(new { Message = "User not found." });
-        
+
         var newTicket = new TicketDto
         {
             userId = ticketIdlessDto.userId,
@@ -113,10 +98,7 @@ public class TicketController(
     public async Task<IActionResult> DeleteTicket(string id)
     {
         var ticketExists = await ticketsService.GetAsync(id);
-        if (ticketExists == null)
-        {
-            return NotFound(new { Message = "User not found." });
-        }
+        if (ticketExists == null) return NotFound(new { Message = "User not found." });
 
         await ticketsService.RemoveAsync(id);
         return NoContent();
@@ -134,15 +116,13 @@ public class TicketController(
     [Authorize]
     public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
     {
-        if (await eventsService.GetAsync(ticketDtoData.eventId) == null) return NotFound(new { Message = "Event not found." });
-        if (ticketDtoData.officeId != null & await ticketOfficeService.GetAsync(ticketDtoData.officeId!) == null) return NotFound(new { Message = "Office not found." });
-        if (await usersService.GetAsync(ticketDtoData.userId) == null) return NotFound(new { Message = "User not found." });
+        if (await eventsService.GetAsync(ticket.eventId) == null) return NotFound(new { Message = "Event not found." });
+        if ((ticket.officeId != null) & (await ticketOfficeService.GetAsync(ticket.officeId!) == null))
+            return NotFound(new { Message = "Office not found." });
+        if (await usersService.GetAsync(ticket.userId) == null) return NotFound(new { Message = "User not found." });
 
-        var updatedTicket = await ticketsService.UpdateAsync(id, ticketDtoData);
-        if (updatedTicket == null)
-        {
-            return NotFound($"Ticket with ID {id} not found.");
-        }
+        var updatedTicket = await ticketsService.UpdateAsync(id, ticket);
+        if (updatedTicket == null) return NotFound($"Ticket with ID {id} not found.");
         return CreatedAtAction(nameof(GetTicket), new { id = updatedTicket.Id }, updatedTicket);
     }
 }
