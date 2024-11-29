@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.Event;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -72,13 +72,13 @@ public class EventController(EventsService eventsService) : ControllerBase
     [Authorize]
     public async Task<ActionResult<EventDto>> PostEvent([FromBody] EventIdlessDto eventIdlessDto)
     {
-        if (string.IsNullOrEmpty(eventIdlessDto.name)) return BadRequest("Event data is required.");
+        if (string.IsNullOrEmpty(eventIdlessDto.Name)) return BadRequest("Event data is required.");
 
         var newEvent = new EventDto
         {
-            name = eventIdlessDto.name,
-            date = DateTimeOffset.UtcNow,
-            groupId = eventIdlessDto.groupId
+            Name = eventIdlessDto.Name,
+            Date = DateTimeOffset.UtcNow,
+            GroupId = eventIdlessDto.GroupId
         };
 
         await eventsService.CreateAsync(newEvent);

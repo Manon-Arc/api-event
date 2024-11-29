@@ -1,4 +1,6 @@
-﻿public class JwtSettings
+﻿namespace api_event.Models;
+
+public class JwtSettings
 {
     // Émetteur du token JWT (généralement l'API)
     public string Issuer { get; set; } = string.Empty;

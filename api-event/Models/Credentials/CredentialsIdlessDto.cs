@@ -1,7 +1,7 @@
-﻿namespace api_event.Models;
+﻿namespace api_event.Models.Credentials;
 
 public class CredentialsIdlessDto
 {
-    public string mail { get; set; } = string.Empty;
-    public string password { get; set; } = string.Empty;
+    public string Mail { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.Ticket;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,10 +29,9 @@ public class TicketController(
         try
         {
             var data = await ticketsService.GetAsync();
-            if (data == null) return NotFound();
             return Ok(data);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return StatusCode(500, new { Message = "An error occurred while retrieving tickets." });
         }
@@ -66,21 +65,21 @@ public class TicketController(
     [Authorize]
     public async Task<ActionResult> PostTicket([FromBody] TicketIdlessDto ticketIdlessDto)
     {
-        var eventDto = await eventsService.GetAsync(ticketIdlessDto.eventId);
-        var officeDto = await ticketOfficeService.GetAsync(ticketIdlessDto.officeId!);
-        var userDto = await usersService.GetAsync(ticketIdlessDto.userId);
+        var eventDto = await eventsService.GetAsync(ticketIdlessDto.EventId);
+        var officeDto = await ticketOfficeService.GetAsync(ticketIdlessDto.OfficeId!);
+        var userDto = await usersService.GetAsync(ticketIdlessDto.UserId);
 
         if (eventDto == null) return NotFound(new { Message = "Event not found." });
-        if ((ticketIdlessDto.officeId != null) & (officeDto == null))
+        if ((ticketIdlessDto.OfficeId != null) & (officeDto == null))
             return NotFound(new { Message = "Office not found." });
         if (userDto == null) return NotFound(new { Message = "User not found." });
 
         var newTicket = new TicketDto
         {
-            userId = ticketIdlessDto.userId,
-            officeId = ticketIdlessDto.officeId,
-            eventId = ticketIdlessDto.eventId,
-            expireDate = ticketIdlessDto.expireDate
+            UserId = ticketIdlessDto.UserId,
+            OfficeId = ticketIdlessDto.OfficeId,
+            EventId = ticketIdlessDto.EventId,
+            ExpireDate = ticketIdlessDto.ExpireDate
         };
 
         await ticketsService.CreateAsync(newTicket);
@@ -114,12 +113,12 @@ public class TicketController(
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
+    public async Task<IActionResult> UpdateTicket(string id, [FromBody] TicketIdlessDto ticket)
     {
-        if (await eventsService.GetAsync(ticket.eventId) == null) return NotFound(new { Message = "Event not found." });
-        if ((ticket.officeId != null) & (await ticketOfficeService.GetAsync(ticket.officeId!) == null))
+        if (await eventsService.GetAsync(ticket.EventId) == null) return NotFound(new { Message = "Event not found." });
+        if ((ticket.OfficeId != null) & (await ticketOfficeService.GetAsync(ticket.OfficeId!) == null))
             return NotFound(new { Message = "Office not found." });
-        if (await usersService.GetAsync(ticket.userId) == null) return NotFound(new { Message = "User not found." });
+        if (await usersService.GetAsync(ticket.UserId) == null) return NotFound(new { Message = "User not found." });
 
         var updatedTicket = await ticketsService.UpdateAsync(id, ticket);
         if (updatedTicket == null) return NotFound($"Ticket with ID {id} not found.");

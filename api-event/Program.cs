@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Cryptography;
 using api_event;
+using api_event.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var publicKey = builder.Configuration["Jwt:PublicKey"];
 var rsa = new RSACryptoServiceProvider(4096);
-rsa.ImportFromPem(publicKey.ToCharArray());
+rsa.ImportFromPem(publicKey?.ToCharArray());
 
 builder.Logging.AddConsole();
 //Jwt configuration starts here

@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_event.Models;
+namespace api_event.Models.Ticket;
 
 public class TicketDto
 {
@@ -11,11 +11,11 @@ public class TicketDto
     //[JsonIgnore]
     public string? Id { get; set; }
 
-    public string? officeId { get; set; }
+    public string? OfficeId { get; set; }
 
-    public string userId { get; set; } = null!;
+    public string UserId { get; set; } = null!;
 
-    public string eventId { get; set; } = null!;
+    public string EventId { get; set; } = null!;
 
-    public string? expireDate { get; set; }
+    public string? ExpireDate { get; set; }
 }

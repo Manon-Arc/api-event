@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+﻿using api_event.Models.TicketOffice;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -41,13 +41,13 @@ public class TicketOfficeService
         var ticketOffice = new TicketOfficeDto
         {
             Id = id,
-            name = updatedTicketOffice.name,
-            eventId = updatedTicketOffice.eventId,
-            price = updatedTicketOffice.price,
-            closeDate = updatedTicketOffice.closeDate,
-            eventDate = updatedTicketOffice.eventDate,
-            openDate = updatedTicketOffice.openDate,
-            ticketCount = updatedTicketOffice.ticketCount
+            Name = updatedTicketOffice.Name,
+            EventId = updatedTicketOffice.EventId,
+            Price = updatedTicketOffice.Price,
+            CloseDate = updatedTicketOffice.CloseDate,
+            EventDate = updatedTicketOffice.EventDate,
+            OpenDate = updatedTicketOffice.OpenDate,
+            TicketCount = updatedTicketOffice.TicketCount
         };
         await _ticketOfficesCollection.ReplaceOneAsync(x => x.Id == id, ticketOffice);
     }

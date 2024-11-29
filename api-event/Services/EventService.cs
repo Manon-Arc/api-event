@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.Event;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -35,7 +35,7 @@ public class EventsService
 
     public async Task<List<EventDto>?> GetByGroupIdAsync(string id)
     {
-        var result = await _eventsCollection.Find(x => x.groupId == id).ToListAsync();
+        var result = await _eventsCollection.Find(x => x.GroupId == id).ToListAsync();
         return result;
     }
 
@@ -59,9 +59,9 @@ public class EventsService
         var eventDto = new EventDto
         {
             Id = id,
-            name = eventIdlessDto.name,
-            date = eventIdlessDto.date,
-            groupId = eventIdlessDto.groupId
+            Name = eventIdlessDto.Name,
+            Date = eventIdlessDto.Date,
+            GroupId = eventIdlessDto.GroupId
         };
         var result = await _eventsCollection.ReplaceOneAsync(x => x.Id == id, eventDto);
 

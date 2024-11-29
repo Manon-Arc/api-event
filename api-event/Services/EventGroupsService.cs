@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.EventGroup;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -38,7 +38,7 @@ public class EventGroupsService
         var eventGroups = new EventGroupsDto
         {
             Id = id,
-            name = eventIdlessGroups.name
+            Name = eventIdlessGroups.Name
         };
         await _eventGroupsCollection.ReplaceOneAsync(e => e.Id == id, eventGroups);
     }

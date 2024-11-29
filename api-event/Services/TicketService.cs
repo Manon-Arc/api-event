@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using api_event.Models;
+using api_event.Models.Ticket;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -36,17 +36,17 @@ public class TicketsService
 
     public async Task<TicketDto?> CreateAsync(TicketDto newTicketDto)
     {
-       try
-       {
+        try
+        {
             await _ticketsCollection.InsertOneAsync(newTicketDto);
             var insertedTicket = await _ticketsCollection.Find(x => x.Id == newTicketDto.Id).FirstOrDefaultAsync();
             return insertedTicket;
-       }
-       catch (Exception ex)
-       {
+        }
+        catch (Exception ex)
+        {
             Console.WriteLine($"An error occurred while inserting: {ex.Message}");
             return null;
-       } 
+        }
     }
 
     public async Task<TicketDto?> UpdateAsync(string id, TicketIdlessDto ticketIdlessDto)
@@ -54,17 +54,15 @@ public class TicketsService
         var ticketDto = new TicketDto
         {
             Id = id,
-            expireDate = ticketIdlessDto.expireDate,
-            eventId = ticketIdlessDto.eventId,
-            userId = ticketIdlessDto.userId,
-            officeId = ticketIdlessDto.officeId
+            ExpireDate = ticketIdlessDto.ExpireDate,
+            EventId = ticketIdlessDto.EventId,
+            UserId = ticketIdlessDto.UserId,
+            OfficeId = ticketIdlessDto.OfficeId
         };
 
         var result = await _ticketsCollection.ReplaceOneAsync(x => x.Id == id, ticketDto);
-                if (result.MatchedCount > 0) // A matching document was found
-        {
+        if (result.MatchedCount > 0) // A matching document was found
             return await _ticketsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-        }
         return null;
     }
 
@@ -73,7 +71,7 @@ public class TicketsService
         var result = await _ticketsCollection.DeleteOneAsync(x => x.Id == id);
         return result.DeletedCount > 0;
     }
-    
+
     public bool IsValid24DigitHex(string id)
     {
         var idRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);

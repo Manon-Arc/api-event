@@ -1,10 +1,10 @@
-﻿namespace api_event.Models;
+﻿namespace api_event.Models.User;
 
 public class UserIdlessDto
 {
-    public string firstName { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
 
-    public string lastName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
 
-    public string mail { get; set; } = null!;
+    public string Mail { get; set; } = null!;
 }

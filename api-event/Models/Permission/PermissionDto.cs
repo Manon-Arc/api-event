@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_event.Models;
+namespace api_event.Models.Permission;
 
 public class PermissionDto
 {
@@ -9,6 +9,6 @@ public class PermissionDto
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
-    public Guid permissionId { get; set; }
-    public string userId { get; set; }
+    public Guid PermissionId { get; set; }
+    public string UserId { get; set; }
 }

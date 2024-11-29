@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_event.Models;
+namespace api_event.Models.EventGroup;
 
 public class EventGroupsDto
 {
@@ -9,5 +9,5 @@ public class EventGroupsDto
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 }

@@ -1,4 +1,5 @@
-using api_event.Models;
+using api_event.Models.Event;
+using api_event.Models.EventGroup;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,11 +67,11 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<EventDto>> PostEventGroups([FromQuery] EventGroupsIdlessDto eventIdlessDto)
+    public async Task<ActionResult<EventDto>> PostEventGroups([FromBody] EventGroupsIdlessDto eventIdlessDto)
     {
         var newEventGroup = new EventGroupsDto
         {
-            name = eventIdlessDto.name
+            Name = eventIdlessDto.Name
         };
 
         await eventGroupsService.CreateAsync(newEventGroup);
@@ -104,7 +105,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateEventGroup(string id, [FromQuery] EventGroupsIdlessDto eventGroup)
+    public async Task<IActionResult> UpdateEventGroup(string id, [FromBody] EventGroupsIdlessDto eventGroup)
     {
         var groupExists = await eventGroupsService.GetAsync(id);
         if (groupExists == null) return NotFound();

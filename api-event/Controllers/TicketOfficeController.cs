@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.TicketOffice;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,19 +50,19 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostTicketOffice([FromQuery] TicketOfficeIdlessDto ticketOffice)
+    public async Task<IActionResult> PostTicketOffice([FromBody] TicketOfficeIdlessDto ticketOffice)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var newTicketOffice = new TicketOfficeDto
         {
-            name = ticketOffice.name,
-            eventId = ticketOffice.eventId,
-            price = ticketOffice.price,
-            closeDate = ticketOffice.closeDate,
-            eventDate = ticketOffice.eventDate,
-            openDate = ticketOffice.openDate,
-            ticketCount = ticketOffice.ticketCount
+            Name = ticketOffice.Name,
+            EventId = ticketOffice.EventId,
+            Price = ticketOffice.Price,
+            CloseDate = ticketOffice.CloseDate,
+            EventDate = ticketOffice.EventDate,
+            OpenDate = ticketOffice.OpenDate,
+            TicketCount = ticketOffice.TicketCount
         };
 
         await ticketsOfficeService.CreateAsync(newTicketOffice);
@@ -96,7 +96,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
+    public async Task<IActionResult> UpdateTicketOffice(string id, [FromBody] TicketOfficeIdlessDto ticketOffice)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 

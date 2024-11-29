@@ -1,4 +1,4 @@
-﻿using api_event.Models;
+﻿using api_event.Models.Permission;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -25,8 +25,8 @@ public class PermissionService
     {
         var newPermission = new PermissionDto
         {
-            permissionId = new Guid(),
-            userId = newUserId
+            PermissionId = new Guid(),
+            UserId = newUserId
         };
 
         await _permissionCollection.InsertOneAsync(newPermission);

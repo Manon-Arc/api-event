@@ -1,6 +1,6 @@
-﻿namespace api_event.Models;
+﻿namespace api_event.Models.EventGroup;
 
 public class EventGroupsIdlessDto
 {
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 }

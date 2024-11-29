@@ -1,11 +1,10 @@
-using api_event.Models;
-using api_event.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
+using api_event.Models.Credentials;
+using api_event.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace api_event.Controllers;
 
@@ -57,25 +56,22 @@ public class CredentialController(CredentialsService credentialService) : Contro
     public async Task<IActionResult> Login([FromBody] CredentialsIdlessDto credentials)
     {
         var user = await credentialService.LoginAsync(credentials);
-        if (user == null)
-        {
-            return Unauthorized("Identifiants invalides");
-        }
-        
-        
-        var publicKey = credentialService.config["Jwt:PrivateKey"];
+        if (user == null) return Unauthorized("Identifiants invalides");
+
+
+        var publicKey = credentialService.Config["Jwt:PrivateKey"];
         var rsa = new RSACryptoServiceProvider(4096);
-        rsa.ImportFromPem(publicKey.ToCharArray());
+        rsa.ImportFromPem(publicKey?.ToCharArray());
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user),
+                new(ClaimTypes.NameIdentifier, user)
                 // Add more claims as needed
             }),
             SigningCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256),
-            Issuer = credentialService.config["Jwt:Issuer"], // Add this line
-            Audience = credentialService.config["Jwt:Audience"] 
+            Issuer = credentialService.Config["Jwt:Issuer"], // Add this line
+            Audience = credentialService.Config["Jwt:Audience"]
         };
         var tokenHandler = new JwtSecurityTokenHandler();
 

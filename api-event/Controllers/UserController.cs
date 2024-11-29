@@ -1,4 +1,4 @@
-using api_event.Models;
+using api_event.Models.User;
 using api_event.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,16 +65,16 @@ public class UserController(UsersService usersService, PermissionService permiss
     [Authorize]
     public async Task<IActionResult> PostUser([FromBody] UserIdlessDto userIdlessDto)
     {
-        if (!usersService.IsEmailValid(userIdlessDto.mail))
+        if (!usersService.IsEmailValid(userIdlessDto.Mail))
             return BadRequest(new { Message = "Invalid email address format." });
 
-        var existingUser = await usersService.GetByEmailAsync(userIdlessDto.mail);
+        var existingUser = await usersService.GetByEmailAsync(userIdlessDto.Mail);
         if (existingUser != null) return Conflict(new { Message = "Email is already in use." });
         var newUser = new UserDto
         {
-            firstName = userIdlessDto.firstName,
-            lastName = userIdlessDto.lastName,
-            mail = userIdlessDto.mail
+            FirstName = userIdlessDto.FirstName,
+            LastName = userIdlessDto.LastName,
+            Mail = userIdlessDto.Mail
         };
 
         await usersService.CreateAsync(newUser);
@@ -92,9 +92,9 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromBody] UserIdlessDto userDtoData)
+    public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromBody] UserIdlessDto userIdlessDto)
     {
-        var updatedUser = await usersService.UpdateAsync(id, userDtoData);
+        var updatedUser = await usersService.UpdateAsync(id, userIdlessDto);
         if (updatedUser == null) return NotFound($"User with ID {id} not found.");
 
         return Ok(updatedUser); // Return the updated user

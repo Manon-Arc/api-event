@@ -1,18 +1,18 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_event.Models;
+namespace api_event.Models.TicketOffice;
 
 public class TicketOfficeIdlessDto
 {
-    public string name { get; set; }
-    public string eventId { get; set; }
-    public int ticketCount { get; set; }
-    public float price { get; set; }
+    public string Name { get; set; }
+    public string EventId { get; set; }
+    public int TicketCount { get; set; }
+    public float Price { get; set; }
 
     [BsonRepresentation(BsonType.Document)]
-    public DateTimeOffset eventDate { get; set; }
+    public DateTimeOffset EventDate { get; set; }
 
-    public DateTimeOffset openDate { get; set; }
-    public DateTimeOffset closeDate { get; set; }
+    public DateTimeOffset OpenDate { get; set; }
+    public DateTimeOffset CloseDate { get; set; }
 }

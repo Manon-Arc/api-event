@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace api_event.Models;
+namespace api_event.Models.Event;
 
 public class EventDto
 {
@@ -9,10 +9,10 @@ public class EventDto
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
 
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-    public string? groupId { get; set; }
+    public string? GroupId { get; set; }
 
     [BsonRepresentation(BsonType.Document)]
-    public DateTimeOffset? date { get; set; }
+    public DateTimeOffset? Date { get; set; }
 }

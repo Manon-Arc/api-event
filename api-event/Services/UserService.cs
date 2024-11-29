@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using api_event.Models;
+using api_event.Models.User;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -24,7 +24,7 @@ public class UsersService
 
     public async Task<List<UserDto>?> GetAsync()
     {
-        var result = await _usersCollection.Find(_ => true).ToListAsync(); 
+        var result = await _usersCollection.Find(_ => true).ToListAsync();
         return result;
     }
 
@@ -54,17 +54,15 @@ public class UsersService
         var userDto = new UserDto
         {
             Id = id,
-            mail = userIdlessDto.mail,
-            lastName = userIdlessDto.lastName,
-            firstName = userIdlessDto.firstName
+            Mail = userIdlessDto.Mail,
+            LastName = userIdlessDto.LastName,
+            FirstName = userIdlessDto.FirstName
         };
 
         var result = await _usersCollection.ReplaceOneAsync(x => x.Id == id, userDto);
-        
+
         if (result.MatchedCount > 0) // A matching document was found
-        {
             return await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
-        }
         return null;
     }
 
@@ -77,7 +75,7 @@ public class UsersService
 
     public async Task<UserDto?> GetByEmailAsync(string email)
     {
-        return await _usersCollection.Find(u => u.mail == email).FirstOrDefaultAsync();
+        return await _usersCollection.Find(u => u.Mail == email).FirstOrDefaultAsync();
     }
 
     public bool IsEmailValid(string email)

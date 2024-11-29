@@ -1,10 +1,10 @@
-﻿namespace api_event.Models;
+﻿namespace api_event.Models.Ticket;
 
 public class TicketIdlessDto
 {
-    public string userId { get; set; } = null!;
-    public string eventId { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    public string EventId { get; set; } = null!;
 
-    public string? officeId { get; set; }
-    public string? expireDate { get; set; }
+    public string? OfficeId { get; set; }
+    public string? ExpireDate { get; set; }
 }
