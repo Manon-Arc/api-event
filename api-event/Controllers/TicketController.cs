@@ -7,8 +7,20 @@ namespace api_event.Controllers;
 
 [Route("/[controller]")]
 [ApiController]
-public class TicketController(TicketsService ticketsService) : ControllerBase
+public class TicketController(
+    TicketsService ticketsService,
+    EventsService eventsService,
+    TicketOfficeService ticketOfficeService,
+    UsersService usersService)
+    : ControllerBase
 {
+    private readonly TicketsService _ticketsService;
+
+    public TicketController(TicketsService ticketsService)
+    {
+        _ticketsService = ticketsService;
+    }
+
     /// <summary>
     ///     Retrieves all tickets.
     /// </summary>
@@ -21,8 +33,19 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     [Authorize]
     public async Task<ActionResult<IEnumerable<TicketDto>>> GetTickets()
     {
-        var data = await ticketsService.GetAsync();
-        return Ok(data);
+        try
+        {
+            var data = await ticketsService.GetAsync();
+            if (data == null)
+            {
+                return NotFound();
+            }
+            return Ok(data);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new { Message = "An error occurred while retrieving tickets." });
+        }
     }
 
     /// <summary>
@@ -36,8 +59,15 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     [Authorize]
     public async Task<ActionResult<TicketDto>> GetTicket(string id)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            return BadRequest(new { Message = "Ticket ID is required." });
+        }
         var data = await ticketsService.GetAsync(id);
-        if (data == null) return NotFound();
+        if (data == null)
+        {
+            return NotFound();
+        }
         return Ok(data);
     }
 
@@ -50,11 +80,20 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult> PostTicket([FromQuery] TicketIdlessDto ticketIdlessDto)
+    public async Task<ActionResult> PostTicket([FromBody] TicketIdlessDto ticketIdlessDto)
     {
+        var eventDto = await eventsService.GetAsync(ticketIdlessDto.eventId);
+        var officeDto = await ticketOfficeService.GetAsync(ticketIdlessDto.officeId!);
+        var userDto = await usersService.GetAsync(ticketIdlessDto.userId);
+        
+        if (eventDto == null) return NotFound(new { Message = "Event not found." });
+        if (ticketIdlessDto.officeId != null & officeDto == null) return NotFound(new { Message = "Office not found." });
+        if (userDto == null) return NotFound(new { Message = "User not found." });
+        
         var newTicket = new TicketDto
         {
             userId = ticketIdlessDto.userId,
+            officeId = ticketIdlessDto.officeId,
             eventId = ticketIdlessDto.eventId,
             expireDate = ticketIdlessDto.expireDate
         };
@@ -74,7 +113,10 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     public async Task<IActionResult> DeleteTicket(string id)
     {
         var ticketExists = await ticketsService.GetAsync(id);
-        if (ticketExists == null) return NotFound();
+        if (ticketExists == null)
+        {
+            return NotFound(new { Message = "User not found." });
+        }
 
         await ticketsService.RemoveAsync(id);
         return NoContent();
@@ -92,10 +134,15 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     [Authorize]
     public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
     {
-        var ticketExists = await ticketsService.GetAsync(id);
-        if (ticketExists == null) return NotFound();
+        if (await eventsService.GetAsync(ticketDtoData.eventId) == null) return NotFound(new { Message = "Event not found." });
+        if (ticketDtoData.officeId != null & await ticketOfficeService.GetAsync(ticketDtoData.officeId!) == null) return NotFound(new { Message = "Office not found." });
+        if (await usersService.GetAsync(ticketDtoData.userId) == null) return NotFound(new { Message = "User not found." });
 
-        await ticketsService.UpdateAsync(id, ticket);
-        return NoContent();
+        var updatedTicket = await ticketsService.UpdateAsync(id, ticketDtoData);
+        if (updatedTicket == null)
+        {
+            return NotFound($"Ticket with ID {id} not found.");
+        }
+        return CreatedAtAction(nameof(GetTicket), new { id = updatedTicket.Id }, updatedTicket);
     }
 }
