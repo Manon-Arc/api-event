@@ -1,5 +1,6 @@
 using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -17,6 +18,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <returns>A list of <see cref="TicketOfficeDto" /> objects.</returns>
     /// <response code="200">Returns the list of ticket offices.</response>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<TicketOfficeDto>>> GetTicketOffices()
     {
         var data = await ticketsOfficeService.GetAsync();
@@ -31,6 +33,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="200">Returns the ticket office with the specified ID.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<TicketOfficeDto>> GetTicketOffice(string id)
     {
         var data = await ticketsOfficeService.GetAsync(id);
@@ -46,6 +49,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="201">Returns the newly created ticket office.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> PostTicketOffice([FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -72,6 +76,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="204">If the ticket office was successfully deleted.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTicketOffice(string id)
     {
         var ticketOfficeExists = await ticketsOfficeService.GetAsync(id);
@@ -90,6 +95,7 @@ public class TicketOfficeController(TicketOfficeService ticketsOfficeService) : 
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket office is found with the specified ID.</response>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTicketOffice(string id, [FromQuery] TicketOfficeIdlessDto ticketOffice)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);

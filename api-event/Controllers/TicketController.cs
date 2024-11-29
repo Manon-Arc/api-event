@@ -1,5 +1,6 @@
 using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -17,6 +18,7 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <returns>A list of <see cref="TicketDto" /> objects.</returns>
     /// <response code="200">Returns the list of tickets.</response>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<TicketDto>>> GetTickets()
     {
         var data = await ticketsService.GetAsync();
@@ -31,6 +33,7 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <response code="200">Returns the ticket with the specified ID.</response>
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<TicketDto>> GetTicket(string id)
     {
         var data = await ticketsService.GetAsync(id);
@@ -46,6 +49,7 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <response code="201">Returns the newly created ticket.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult> PostTicket([FromQuery] TicketIdlessDto ticketIdlessDto)
     {
         var newTicket = new TicketDto
@@ -66,6 +70,7 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <response code="204">If the ticket was successfully deleted.</response>
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteTicket(string id)
     {
         var ticketExists = await ticketsService.GetAsync(id);
@@ -84,6 +89,7 @@ public class TicketController(TicketsService ticketsService) : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no ticket is found with the specified ID.</response>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateTicket(string id, [FromQuery] TicketIdlessDto ticket)
     {
         var ticketExists = await ticketsService.GetAsync(id);

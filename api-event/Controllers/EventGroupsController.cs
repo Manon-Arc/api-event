@@ -1,5 +1,6 @@
 using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -18,6 +19,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <returns>A list of <see cref="EventGroupsDto" /> objects.</returns>
     /// <response code="200">Returns the list of event groups.</response>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<EventGroupsDto>>> GetEventGroups()
     {
         var data = await eventGroupsService.GetAsync();
@@ -32,6 +34,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="200">Returns the event group with the specified ID.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<EventGroupsDto>> GetEventGroup(string id)
     {
         var data = await eventGroupsService.GetAsync(id);
@@ -47,6 +50,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="200">Returns the list of events in the specified group.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpGet("{id}/events")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents(string id)
     {
         var data = await eventsService.GetByGroupIdAsync(id);
@@ -61,6 +65,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="201">Returns the newly created event group.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<EventDto>> PostEventGroups([FromQuery] EventGroupsIdlessDto eventIdlessDto)
     {
         var newEventGroup = new EventGroupsDto
@@ -79,6 +84,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="204">If the event group was successfully deleted.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteEventGroup(string id)
     {
         var groupExists = await eventGroupsService.GetAsync(id);
@@ -97,6 +103,7 @@ public class EventGroupsController(EventGroupsService eventGroupsService, Events
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event group is found with the specified ID.</response>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateEventGroup(string id, [FromQuery] EventGroupsIdlessDto eventGroup)
     {
         var groupExists = await eventGroupsService.GetAsync(id);

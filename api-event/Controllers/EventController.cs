@@ -1,5 +1,6 @@
 using api_event.Models;
 using api_event.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_event.Controllers;
@@ -18,6 +19,7 @@ public class EventController(EventsService eventsService) : ControllerBase
     /// <response code="200">Returns the list of events.</response>
     /// <response code="500">If there was an error retrieving the events.</response>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<EventDto>>> GetEvents()
     {
         try
@@ -43,6 +45,7 @@ public class EventController(EventsService eventsService) : ControllerBase
     /// <response code="200">Returns the event with the specified ID.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<EventDto>> GetEvent(string id)
     {
         if (string.IsNullOrEmpty(id)) return BadRequest(new { Message = "Event ID is required." });
@@ -66,6 +69,7 @@ public class EventController(EventsService eventsService) : ControllerBase
     /// <response code="201">Returns the newly created event.</response>
     /// <response code="400">If the input data is invalid.</response>
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<EventDto>> PostEvent([FromBody] EventIdlessDto eventIdlessDto)
     {
         if (string.IsNullOrEmpty(eventIdlessDto.name)) return BadRequest("Event data is required.");
@@ -91,6 +95,7 @@ public class EventController(EventsService eventsService) : ControllerBase
     /// <response code="204">If the event was successfully deleted.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<ActionResult> DeleteEvent(string id)
     {
         var eventExists = await eventsService.GetAsync(id);
@@ -112,6 +117,7 @@ public class EventController(EventsService eventsService) : ControllerBase
     /// <response code="400">If the input data is invalid.</response>
     /// <response code="404">If no event is found with the specified ID.</response>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<ActionResult<EventDto>> UpdateEvent(string id, [FromBody] EventIdlessDto eventIdlessDto)
     {
         var updatedEvent = await eventsService.UpdateAsync(id, eventIdlessDto);

@@ -19,8 +19,8 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// ///
     /// <response code="500">If there was an error retrieving the events.</response>
     /// <response code="500">If there was an error retrieving the events.</response>
-    [Authorize]
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
         try
@@ -43,6 +43,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="200">Returns the user with the specified ID.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<UserDto>> GetUser(string id)
     {
         if (string.IsNullOrEmpty(id)) return BadRequest(new { Message = "User ID is required." });
@@ -61,6 +62,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="400">If the email is invalid.</response>
     /// <response code="409">If the email is already in use.</response>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> PostUser([FromQuery] UserIdlessDto userIdlessDto)
     {
         if (!usersService.IsEmailValid(userIdlessDto.mail))
@@ -89,6 +91,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="204">Return the newly updated user.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<ActionResult<UserDto>> UpdateUser(string id, [FromQuery] UserIdlessDto userIdlessDto)
     {
         var updatedUser = await usersService.UpdateAsync(id, userIdlessDto);
@@ -104,6 +107,7 @@ public class UserController(UsersService usersService, PermissionService permiss
     /// <response code="204">If the user was successfully deleted.</response>
     /// <response code="404">If no user is found with the specified ID.</response>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteUser(string id)
     {
         var existingUser = await usersService.GetAsync(id);
