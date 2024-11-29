@@ -1,4 +1,4 @@
-# API Event purpose
+# API Event :
 
 by **ARCAS** Manon, **BARBOTEAU** Mathieu, **DE AMEZAGA** Bastien, **MACE** Léo B3 B 
 
