@@ -6,15 +6,15 @@ by **ARCAS** Manon, **BARBOTEAU** Mathieu, **DE AMEZAGA** Bastien, **MACE** Léo
    
 I. [Badges](#🎯-badges)
 
-III. [Presentation](#📋-presentation)
+II. [Presentation](#📋-presentation)
 
-IV. [Availables features](#🌟-features)
+III. [Availables features](#🌟-features)
 
-V. [Required Configuration](#🔧-required-configuration) 
+IV. [Required Configuration](#🔧-required-configuration) 
 
-VI. [Installation](#💻-installation) 
+V. [Installation](#💻-installation) 
 
-V. [Lauch](#🌐-lauch)
+VI. [Lauch](#🌐-lauch)
 
 
 ## 🎯 Badges :
